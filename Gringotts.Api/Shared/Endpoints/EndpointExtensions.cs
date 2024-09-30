@@ -5,13 +5,20 @@ namespace Gringotts.Api.Shared.Endpoints
 {
     public static class EndpointExtensions
     {
+        /// <summary>
+        /// Adds all endpoint implementations from the executing assembly to the service collection.
+        /// </summary>
+        /// <param name="services">The service collection to add the enpoints to.</param>
+        /// <returns>The updated service collection.</returns>
+        public static IServiceCollection AddEndpoints(this IServiceCollection services) => services.AddEndpoints(Assembly.GetExecutingAssembly());
+        
 
-        public static IServiceCollection AddEndpoints(this IServiceCollection services) {
-            services.AddEndpoints(Assembly.GetExecutingAssembly());
-
-            return services;
-        }
-
+        /// <summary>
+        /// Adds all endpoint implementations from the specified assembly to the service collection.
+        /// </summary>
+        /// <param name="services">The service collection to add the endpoints to.</param>
+        /// <param name="assembly">The assembly to iterate for endpoint retrieval.</param>
+        /// <returns>The updated service collection.</returns>
         public static IServiceCollection AddEndpoints(this IServiceCollection services, Assembly assembly) {
             ServiceDescriptor[] serviceDescriptors = assembly.DefinedTypes
                 .Where(type => !type.IsAbstract && !type.IsInterface && typeof(IEndpoint).IsAssignableFrom(type))
@@ -23,6 +30,12 @@ namespace Gringotts.Api.Shared.Endpoints
             return services;
         }
 
+        /// <summary>
+        /// Execute endpoint mapping for each registered endpoint.
+        /// </summary>
+        /// <param name="app">The web application to map the endpoints to.</param>
+        /// <param name="routeGroupBuilder">Optional route group builder for categorizing routes.</param>
+        /// <returns>The updated web application.</returns>
         public static IApplicationBuilder MapEndpoints(this WebApplication app, RouteGroupBuilder? routeGroupBuilder = null) {
             IEnumerable<IEndpoint> endpoints = app.Services.GetRequiredService<IEnumerable<IEndpoint>>();
 
