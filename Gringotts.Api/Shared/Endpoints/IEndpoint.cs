@@ -1,4 +1,4 @@
-namespace Gringotts.Api.Shared
+namespace Gringotts.Api.Shared.Endpoints
 {
     public interface IEndpoint
     {
