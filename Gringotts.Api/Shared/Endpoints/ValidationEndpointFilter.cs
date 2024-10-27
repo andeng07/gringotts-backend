@@ -7,10 +7,7 @@ public class ValidationEndpointFilter<TRequest>(IValidator<TRequest>? validator)
 {
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
-        if (validator == null)
-        {
-            return await next(context);
-        }
+        ArgumentNullException.ThrowIfNull(validator, $"validator for {nameof(TRequest)} cannot be null");
 
         var request = context.Arguments.OfType<TRequest>().First();
 
