@@ -1,7 +1,9 @@
+using FluentValidation;
 using Gringotts.Api.Shared.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 builder.Services.AddEndpoints();
 
 if (builder.Environment.IsDevelopment()) {
