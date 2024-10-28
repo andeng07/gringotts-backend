@@ -20,7 +20,7 @@ namespace Gringotts.Api.Shared.Endpoints
         /// <param name="assembly">The assembly to iterate for endpoint retrieval.</param>
         /// <returns>The updated service collection.</returns>
         public static IServiceCollection AddEndpoints(this IServiceCollection services, Assembly assembly) {
-            ServiceDescriptor[] serviceDescriptors = assembly.DefinedTypes
+            var serviceDescriptors = assembly.DefinedTypes
                 .Where(type => !type.IsAbstract && !type.IsInterface && typeof(IEndpoint).IsAssignableFrom(type))
                 .Select(type => ServiceDescriptor.Transient(typeof(IEndpoint), type))
                 .ToArray();
@@ -37,11 +37,11 @@ namespace Gringotts.Api.Shared.Endpoints
         /// <param name="routeGroupBuilder">Optional route group builder for categorizing routes.</param>
         /// <returns>The updated web application.</returns>
         public static IApplicationBuilder MapEndpoints(this WebApplication app, RouteGroupBuilder? routeGroupBuilder = null) {
-            IEnumerable<IEndpoint> endpoints = app.Services.GetRequiredService<IEnumerable<IEndpoint>>();
+            var endpoints = app.Services.GetRequiredService<IEnumerable<IEndpoint>>();
 
             IEndpointRouteBuilder builder = routeGroupBuilder is null ? app : routeGroupBuilder;
 
-            foreach (IEndpoint endpoint in endpoints) {
+            foreach (var endpoint in endpoints) {
                 endpoint.MapEndpoint(builder);
             }
 
