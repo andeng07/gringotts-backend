@@ -11,7 +11,6 @@ namespace Gringotts.Api.Shared.Endpoints;
 /// <typeparam name="TRequest">The type of the request object that this filter validates.</typeparam>
 public class ValidationEndpointFilter<TRequest>(IValidator<TRequest>? validator) : IEndpointFilter
 {
- 
     /// <summary>
     /// Invokes the filter to validate the request. If validation passes, the request is allowed to proceed.
     /// Otherwise, a failure result is returned with validation errors.
@@ -34,9 +33,12 @@ public class ValidationEndpointFilter<TRequest>(IValidator<TRequest>? validator)
         if (!result.IsValid)
         {
             return Result.Failure(result.Errors.Select(e =>
-                new Error(validator.GetType() + "." + e.ErrorCode, e.ErrorMessage, Error.ErrorType.Validation)));
+                    new Error(
+                        $"Validation.{nameof(TRequest)}.{e.ErrorCode}",
+                        e.ErrorMessage, Error.ErrorType.Validation))
+                .ToArray());
         }
-        
+
         return await next(context);
     }
 }

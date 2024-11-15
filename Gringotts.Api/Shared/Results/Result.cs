@@ -43,7 +43,7 @@ public record Result
     /// Creates a failed result with specified errors.
     /// </summary>
     /// <param name="errors">The list of errors describing the failures.</param>
-    public static Result Failure(IEnumerable<Error> errors) => new(errors);
+    public static Result Failure(params Error[] errors) => new(errors);
 
     /// <summary>
     /// Implicitly converts an <see cref="Error"/> to a failed <see cref="Result"/>.
@@ -99,5 +99,5 @@ public sealed record TypedResult<TValue> : Result
     /// Creates a failed result with specified errors.
     /// </summary>
     /// <param name="errors">The list of errors describing the failures.</param>
-    public new static TypedResult<TValue> Failure(IEnumerable<Error> errors) => new(errors);
+    public new static TypedResult<TValue> Failure(params Error[] errors) => new(errors);
 }
