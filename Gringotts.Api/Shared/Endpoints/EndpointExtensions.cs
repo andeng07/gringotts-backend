@@ -10,7 +10,8 @@ namespace Gringotts.Api.Shared.Endpoints
         /// </summary>
         /// <param name="services">The service collection to add the enpoints to.</param>
         /// <returns>The updated service collection.</returns>
-        public static IServiceCollection AddEndpoints(this IServiceCollection services) => services.AddEndpoints(Assembly.GetExecutingAssembly());
+        public static IServiceCollection AddEndpoints(this IServiceCollection services) =>
+            services.AddEndpoints(Assembly.GetExecutingAssembly());
         
 
         /// <summary>
