@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Gringotts.Api.Shared.Exceptions;
+using Gringotts.Api.Shared.Results;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Gringotts.Api.Shared.Services;
@@ -27,7 +28,7 @@ public abstract class JwtService(IConfiguration configuration)
         return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
     }
 
-    protected ClaimsPrincipal ValidateToken(string token, bool validateLifetime)
+    protected TypedResult<ClaimsPrincipal> ValidateToken(string token, bool validateLifetime)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_secret);
@@ -47,9 +48,10 @@ public abstract class JwtService(IConfiguration configuration)
         {
             return tokenHandler.ValidateToken(token, validationParameters, out _);
         }
-        catch
+        catch(Exception e)
         {
-            return null; // or throw an exception based on your needs
+            var error = new Error("Jwt.Token.ValidationFailure", e.Message, Error.ErrorType.Failure);
+            return TypedResult<ClaimsPrincipal>.Failure(error);
         }
     }
     

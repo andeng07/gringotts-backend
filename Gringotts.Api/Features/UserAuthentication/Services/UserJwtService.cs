@@ -1,13 +1,14 @@
 using System.Security.Claims;
+using Gringotts.Api.Shared.Results;
 using Gringotts.Api.Shared.Services;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Gringotts.Api.Features.UserSecrets.Services;
+namespace Gringotts.Api.Features.UserAuthentication.Services;
 
 public class UserJwtService(IConfiguration configuration) : JwtService(configuration)
 {
     
-    public string GenerateUserToken(string userId, string username)
+    public string GenerateUserToken(string userId)
     {
         var claims = new List<Claim>
         {
@@ -19,7 +20,7 @@ public class UserJwtService(IConfiguration configuration) : JwtService(configura
         return GenerateToken(claims);
     }
 
-    public ClaimsPrincipal ValidateUserToken(string token)
+    public TypedResult<ClaimsPrincipal> ValidateUserToken(string token)
     {
         return ValidateToken(token, false);
     }
