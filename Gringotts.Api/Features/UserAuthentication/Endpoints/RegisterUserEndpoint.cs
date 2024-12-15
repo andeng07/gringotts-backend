@@ -26,7 +26,7 @@ public class RegisterUserEndpoint : IEndpoint
 
     private record RegisterUserResponse(Guid UserId, string Email);
 
-    private static async Task<TypedResult<RegisterUserResponse>> HandleAsync(
+    private async Task<TypedResult<RegisterUserResponse>> HandleAsync(
         [FromBody] RegisterUserRequest request,
         UserSecretService userSecretService,
         UserService userService,
