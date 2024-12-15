@@ -51,17 +51,25 @@ public class UserSecretService(AppDbContext dbContext, HashService hashService)
     public async Task<bool> HasSecretAsync(string email) =>
         await dbContext.UserSecrets.AnyAsync(secret => secret.Email == email);
 
-    public async Task<TypedResult<bool>> MatchSecretAsync(string email, string passwordAttempt)
+    public async Task<TypedResult<Guid>> MatchSecretAsync(string email, string passwordAttempt)
     {
         var secret = await dbContext.UserSecrets.FirstOrDefaultAsync(secret => secret.Email == email);
 
         if (secret == null)
         {
-            return TypedResult<bool>.Failure(new Error("Secrets.User.SecretNotFound",
+            return TypedResult<Guid>.Failure(new Error("Secrets.User.SecretNotFound",
                 "The secret with the email was not found.",
                 Error.ErrorType.NotFound));
         }
 
-        return hashService.Verify(passwordAttempt, secret.Password);
+        var result = hashService.Verify(passwordAttempt, secret.Password);
+
+        if (!result)
+        {
+            return TypedResult<Guid>.Failure(new Error(
+                "Secrets.User.InvalidPassword", "The password is incorrect.", Error.ErrorType.AccessUnauthorized));
+        }
+
+        return secret.UserId;
     }
 }
