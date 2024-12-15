@@ -8,6 +8,33 @@ namespace Gringotts.Api.Features.UserAuthentication.Services;
 
 public class UserSecretService(AppDbContext dbContext, HashService hashService)
 {
+    public async Task<TypedResult<UserSecret>> FindSecret(string email)
+    {
+        var secret = await dbContext.UserSecrets.FirstOrDefaultAsync(secret => secret.Email == email);
+
+        if (secret == null)
+        {
+            return TypedResult<UserSecret>.Failure(new Error("Secrets.User.SecretNotFound",
+                "The secret with the email was not found.", Error.ErrorType.NotFound));
+        }
+
+        return TypedResult<UserSecret>.Success(secret);
+    }    
+    
+    public async Task<TypedResult<UserSecret>> FindSecret(Guid id)
+    {
+        var secret = await dbContext.UserSecrets.FirstOrDefaultAsync(secret => secret.UserId == id);
+
+        if (secret == null)
+        {
+            return TypedResult<UserSecret>.Failure(new Error("Secrets.User.SecretNotFound",
+                "The secret with the id was not found.", Error.ErrorType.NotFound));
+        }
+
+        return TypedResult<UserSecret>.Success(secret);
+    }
+
+
     public async Task<TypedResult<Guid>> CreateSecretAsync(string email, string password)
     {
         if (await HasSecretAsync(email))
