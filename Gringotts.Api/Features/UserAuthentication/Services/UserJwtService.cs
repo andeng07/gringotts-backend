@@ -8,11 +8,11 @@ namespace Gringotts.Api.Features.UserAuthentication.Services;
 public class UserJwtService(IConfiguration configuration) : JwtService(configuration)
 {
     
-    public string GenerateUserToken(string userId)
+    public string GenerateUserToken(Guid userId)
     {
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, userId),
+            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
             new("TokenType", "User"),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
