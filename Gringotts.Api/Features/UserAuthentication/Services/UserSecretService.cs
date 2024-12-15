@@ -60,16 +60,14 @@ public class UserSecretService(AppDbContext dbContext, HashService hashService)
 
     public async Task<Result> DeleteSecretAsync(Guid id)
     {
-        var secret = await dbContext.UserSecrets.FirstOrDefaultAsync(x => x.Id == id);
+        var secret = await FindSecret(id);
 
-        if (secret == null)
+        if (!secret.IsSuccess)
         {
-            return Result.Failure(new Error("Secrets.User.SecretNotFound", 
-                "The secret with the email was not found.",
-                Error.ErrorType.NotFound));
+            return Result.Failure(secret.Errors.ToArray());
         }
-
-        dbContext.UserSecrets.Remove(secret);
+        
+        dbContext.UserSecrets.Remove(secret.Value!);
         await dbContext.SaveChangesAsync();
 
         return Result.Success();
@@ -80,16 +78,15 @@ public class UserSecretService(AppDbContext dbContext, HashService hashService)
 
     public async Task<TypedResult<Guid>> MatchSecretAsync(string email, string passwordAttempt)
     {
-        var secret = await dbContext.UserSecrets.FirstOrDefaultAsync(secret => secret.Email == email);
+        
+        var secret = await FindSecret(email);
 
-        if (secret == null)
+        if (!secret.IsSuccess)
         {
-            return TypedResult<Guid>.Failure(new Error("Secrets.User.SecretNotFound",
-                "The secret with the email was not found.",
-                Error.ErrorType.NotFound));
+            return TypedResult<Guid>.Failure(secret.Errors.ToArray());
         }
 
-        var result = hashService.Verify(passwordAttempt, secret.Password);
+        var result = hashService.Verify(passwordAttempt, secret.Value!.Password);
 
         if (!result)
         {
@@ -97,6 +94,6 @@ public class UserSecretService(AppDbContext dbContext, HashService hashService)
                 "Secrets.User.InvalidPassword", "The password is incorrect.", Error.ErrorType.AccessUnauthorized));
         }
 
-        return secret.UserId;
+        return secret.Value.UserId;
     }
 }
