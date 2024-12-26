@@ -1,9 +1,8 @@
 using Gringotts.Api.Shared.Database;
-using Gringotts.Api.Shared.Database.Models.Users;
 using Gringotts.Api.Shared.Results;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gringotts.Api.Shared.Services;
+namespace Gringotts.Api.Features.User.Services;
 
 public class UserService(AppDbContext dbContext)
 {
@@ -12,7 +11,7 @@ public class UserService(AppDbContext dbContext)
     {
         var userId = Guid.NewGuid();
 
-        var newUser = new User
+        var newUser = new Models.User
         {
             Id = userId,
             CardId = cardId,

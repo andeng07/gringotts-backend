@@ -1,7 +1,7 @@
 using FluentValidation;
-using Gringotts.Api.Features.UserAuthentication.Services;
+using Gringotts.Api.Features.Auth.Services;
+using Gringotts.Api.Features.User.Services;
 using Gringotts.Api.Shared.Endpoints;
-using Gringotts.Api.Shared.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

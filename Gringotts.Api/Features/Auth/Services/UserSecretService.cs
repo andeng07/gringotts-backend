@@ -1,10 +1,10 @@
+using Gringotts.Api.Features.Auth.Models;
 using Gringotts.Api.Shared.Database;
-using Gringotts.Api.Shared.Database.Models.Users;
 using Gringotts.Api.Shared.Results;
 using Gringotts.Api.Shared.Services;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gringotts.Api.Features.UserAuthentication.Services;
+namespace Gringotts.Api.Features.Auth.Services;
 
 public class UserSecretService(AppDbContext dbContext, HashService hashService)
 {

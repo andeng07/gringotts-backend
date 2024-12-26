@@ -3,7 +3,7 @@ using Gringotts.Api.Shared.Results;
 using Gringotts.Api.Shared.Services;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Gringotts.Api.Features.UserAuthentication.Services;
+namespace Gringotts.Api.Features.Auth.Services;
 
 public class UserJwtService(IConfiguration configuration) : JwtService(configuration)
 {

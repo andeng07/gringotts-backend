@@ -1,15 +1,15 @@
-﻿using Gringotts.Api.Features.UserAuthentication.Services;
+﻿using Gringotts.Api.Features.Auth.Services;
 using Gringotts.Api.Shared.Endpoints;
 using Gringotts.Api.Shared.Results;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gringotts.Api.Features.UserAuthentication.Endpoints;
+namespace Gringotts.Api.Features.Auth.Endpoints;
 
 public class LoginEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGroup("/user-auth").MapPost("/register", HandleAsync)
+        app.MapGroup("/user/auth").MapPost("/login", HandleAsync)
             .AddEndpointFilter<ValidationEndpointFilter<LoginUserRequest>>();
     }
 

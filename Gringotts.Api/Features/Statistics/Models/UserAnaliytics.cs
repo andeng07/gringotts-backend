@@ -1,4 +1,4 @@
-namespace Gringotts.Api.Shared.Database.Models.Users
+namespace Gringotts.Api.Features.Statistics.Models
 {
     public record UserAnalytics
     {

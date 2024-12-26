@@ -1,4 +1,4 @@
-namespace Gringotts.Api.Shared.Database.Models.Readers
+namespace Gringotts.Api.Features.Reader.Models
 {
     public record Location
 

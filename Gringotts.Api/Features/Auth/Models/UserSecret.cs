@@ -1,4 +1,4 @@
-namespace Gringotts.Api.Shared.Database.Models.Users
+namespace Gringotts.Api.Features.Auth.Models
 {
     public record UserSecret
     {

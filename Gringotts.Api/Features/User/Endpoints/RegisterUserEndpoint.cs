@@ -1,16 +1,16 @@
-using Gringotts.Api.Features.UserAuthentication.Services;
+using Gringotts.Api.Features.Auth.Services;
+using Gringotts.Api.Features.User.Services;
 using Gringotts.Api.Shared.Endpoints;
 using Gringotts.Api.Shared.Results;
-using Gringotts.Api.Shared.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gringotts.Api.Features.UserAuthentication.Endpoints;
+namespace Gringotts.Api.Features.User.Endpoints;
 
 public class RegisterUserEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGroup("/user-auth").MapPost("/register", HandleAsync)
+        app.MapGroup("/user").MapPost("/register", HandleAsync)
             .AddEndpointFilter<ValidationEndpointFilter<RegisterUserRequest>>();
     }
 

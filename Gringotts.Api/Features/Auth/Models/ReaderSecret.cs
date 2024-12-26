@@ -1,4 +1,4 @@
-namespace Gringotts.Api.Shared.Database.Models.Readers
+namespace Gringotts.Api.Features.Auth.Models
 {
     public record ReaderSecret
     {

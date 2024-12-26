@@ -1,6 +1,8 @@
-using Gringotts.Api.Shared.Database.Models.Readers;
-using Gringotts.Api.Shared.Database.Models.Records;
-using Gringotts.Api.Shared.Database.Models.Users;
+using Gringotts.Api.Features.Auth.Models;
+using Gringotts.Api.Features.Log.Models;
+using Gringotts.Api.Features.Reader.Models;
+using Gringotts.Api.Features.Statistics.Models;
+using Gringotts.Api.Features.User.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gringotts.Api.Shared.Database
