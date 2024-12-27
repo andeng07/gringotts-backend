@@ -40,18 +40,8 @@ public class RegisterUserEndpoint : IEndpoint
                 Error.ErrorType.Conflict
             ));
         }
-
-        var createSecretResult = await userSecretService.CreateSecretAsync(
-            request.Email,
-            request.Password
-        );
-
-        if (!createSecretResult.IsSuccess)
-        {
-            return TypedResult<RegisterUserResponse>.Failure(createSecretResult.Errors.ToArray());
-        }
         
-        var registeredUserResult = await userService.CreateUser(
+        var registeredUserResult = await userService.CreateUserAsync(
             request.CardId,
             request.SchoolId,
             request.FirstName,
@@ -63,8 +53,19 @@ public class RegisterUserEndpoint : IEndpoint
         {
             return TypedResult<RegisterUserResponse>.Failure(registeredUserResult.Errors.ToArray());
         }
+
+        var createSecretResult = await userSecretService.CreateSecretAsync(
+            registeredUserResult.Value!.Id,
+            request.Email,
+            request.Password
+        );
+
+        if (!createSecretResult.IsSuccess)
+        {
+            return TypedResult<RegisterUserResponse>.Failure(createSecretResult.Errors.ToArray());
+        }
         
-        var response = new RegisterUserResponse(registeredUserResult.Value, request.Email);
+        var response = new RegisterUserResponse(registeredUserResult.Value!.Id, createSecretResult.Value!.Email);
         
         return TypedResult<RegisterUserResponse>.Success(response);
     }
