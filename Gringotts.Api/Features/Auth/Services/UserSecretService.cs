@@ -37,14 +37,6 @@ public class UserSecretService(AppDbContext dbContext, HashService hashService)
 
     public async Task<TypedResult<Guid>> CreateSecretAsync(string email, string password)
     {
-        if (await HasSecretAsync(email))
-        {
-            return TypedResult<Guid>.Failure(Error.Failure("Secrets.User.SecretWithEmailExists",
-                "The secret with the email already exists."));
-        }
-
-        var id = Guid.NewGuid();
-
         var secret = new UserSecret
         {
             UserId = Guid.NewGuid(),
