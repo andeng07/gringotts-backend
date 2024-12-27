@@ -46,6 +46,8 @@ namespace Gringotts.Api.Shared.Database
             modelBuilder.Entity<Role>()
                 .HasKey(entity => entity.Id);
 
+            modelBuilder.Entity<UserRole>().HasNoKey();
+            
             modelBuilder.Entity<UserRole>()
                 .HasOne<User>()
                 .WithMany()
