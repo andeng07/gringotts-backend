@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gringotts.Api.Shared.Database
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
         public DbSet<User> Users { get; set; }
         public DbSet<UserSecret> UserSecrets { get; set; }
@@ -101,11 +101,6 @@ namespace Gringotts.Api.Shared.Database
             modelBuilder.Entity<Record>()
                 .Property(entity => entity.ActionType)
                 .HasConversion<int>();
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            base.OnConfiguring(optionsBuilder);
         }
     }
 }
