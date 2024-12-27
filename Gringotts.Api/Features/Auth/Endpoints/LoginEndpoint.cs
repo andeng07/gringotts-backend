@@ -9,8 +9,7 @@ public class LoginEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGroup("/user/auth").MapPost("/login", HandleAsync)
-            .AddEndpointFilter<ValidationEndpointFilter<LoginUserRequest>>();
+        app.MapGroup("/user/auth").MapPost("/login", HandleAsync);
     }
 
     private record LoginUserRequest(string Email, string Password);

@@ -10,8 +10,7 @@ public class RegisterUserEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGroup("/user").MapPost("/register", HandleAsync)
-            .AddEndpointFilter<ValidationEndpointFilter<RegisterUserRequest>>();
+        app.MapGroup("/user").MapPost("/register", HandleAsync);
     }
 
     private record RegisterUserRequest(
