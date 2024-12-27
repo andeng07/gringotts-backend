@@ -7,7 +7,7 @@ namespace Gringotts.Api.Features.User.Services;
 public class UserService(AppDbContext dbContext)
 {
     // TODO: finalize the data being stored
-    public async Task<TypedResult<Guid>> CreateUser(string cardId, string schoolId, string firstName, string lastName, string? middleName = null)
+    public async Task<TypedResult<Models.User>> CreateUserAsync(string cardId, string schoolId, string firstName, string lastName, string? middleName = null)
     {
         var userId = Guid.NewGuid();
 
@@ -21,11 +21,11 @@ public class UserService(AppDbContext dbContext)
             MiddleName = middleName
         };
         
-        dbContext.Users.Add(newUser);
+        await dbContext.Users.AddAsync(newUser);
 
         await dbContext.SaveChangesAsync();
-
-        return userId;
+        
+        return newUser;
     }
         
     public async Task<bool> IsUserRegistered(Guid id) => await dbContext.Users.AnyAsync(x => x.Id == id);

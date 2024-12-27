@@ -35,19 +35,21 @@ public class UserSecretService(AppDbContext dbContext, HashService hashService)
     }
 
 
-    public async Task<TypedResult<Guid>> CreateSecretAsync(string email, string password)
+    public async Task<TypedResult<UserSecret>> CreateSecretAsync(Guid userId, string email, string password)
     {
         var secret = new UserSecret
         {
-            UserId = Guid.NewGuid(),
-            Id = id,
+            Id = Guid.NewGuid(),
+            UserId = userId,
             Email = email,
             Password = hashService.Hash(password)
         };
 
         await dbContext.UserSecrets.AddAsync(secret);
 
-        return TypedResult<Guid>.Success(id);
+        await dbContext.SaveChangesAsync();
+
+        return secret;
     }
 
     public async Task<Result> DeleteSecretAsync(Guid id)
