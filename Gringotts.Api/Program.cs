@@ -12,7 +12,7 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 builder.Services.AddEndpoints();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Database.ConnectionString")));
+    options.UseNpgsql(builder.Configuration.GetValue<string>("Database:ConnectionString")));
 
 builder.Services.AddScoped<UserJwtService>();
 builder.Services.AddScoped<UserSecretService>();
