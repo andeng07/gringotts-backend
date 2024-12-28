@@ -10,7 +10,7 @@ public class RegisterUserEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGroup("/user").MapPost("/register", HandleAsync);
+        app.MapGroup("/auth").MapPost("/register", HandleAsync);
     }
 
     private record RegisterUserRequest(
@@ -25,7 +25,7 @@ public class RegisterUserEndpoint : IEndpoint
 
     private record RegisterUserResponse(Guid UserId, string Email);
 
-    private async Task<TypedResult<RegisterUserResponse>> HandleAsync(
+    private async Task<IResult> HandleAsync(
         [FromBody] RegisterUserRequest request,
         UserSecretService userSecretService,
         UserService userService,
@@ -34,13 +34,13 @@ public class RegisterUserEndpoint : IEndpoint
     {
         if (await userSecretService.HasSecretAsync(request.Email))
         {
-            return TypedResult<RegisterUserResponse>.Failure(new Error(
+            return TypedResults.Conflict(new Error(
                 "Authentication.Register.EmailAlreadyRegistered",
                 "An account with this email address already exists.",
                 Error.ErrorType.Conflict
             ));
         }
-        
+
         var registeredUserResult = await userService.CreateUserAsync(
             request.CardId,
             request.SchoolId,
@@ -51,9 +51,9 @@ public class RegisterUserEndpoint : IEndpoint
 
         if (!registeredUserResult.IsSuccess)
         {
-            return TypedResult<RegisterUserResponse>.Failure(registeredUserResult.Errors.ToArray());
+            return Results.BadRequest(registeredUserResult.Errors);
         }
-
+        
         var createSecretResult = await userSecretService.CreateSecretAsync(
             registeredUserResult.Value!.Id,
             request.Email,
@@ -62,11 +62,11 @@ public class RegisterUserEndpoint : IEndpoint
 
         if (!createSecretResult.IsSuccess)
         {
-            return TypedResult<RegisterUserResponse>.Failure(createSecretResult.Errors.ToArray());
+            return Results.BadRequest(createSecretResult.Errors);
         }
-        
+
         var response = new RegisterUserResponse(registeredUserResult.Value!.Id, createSecretResult.Value!.Email);
-        
-        return TypedResult<RegisterUserResponse>.Success(response);
+
+        return Results.Created($"/users/{registeredUserResult.Value.Id}", response);
     }
 }
