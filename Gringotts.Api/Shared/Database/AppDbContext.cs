@@ -1,11 +1,13 @@
-using Gringotts.Api.Shared.Database.Models.Readers;
-using Gringotts.Api.Shared.Database.Models.Records;
-using Gringotts.Api.Shared.Database.Models.Users;
+using Gringotts.Api.Features.Auth.Models;
+using Gringotts.Api.Features.Log.Models;
+using Gringotts.Api.Features.Reader.Models;
+using Gringotts.Api.Features.Statistics.Models;
+using Gringotts.Api.Features.User.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gringotts.Api.Shared.Database
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
         public DbSet<User> Users { get; set; }
         public DbSet<UserSecret> UserSecrets { get; set; }
@@ -44,6 +46,8 @@ namespace Gringotts.Api.Shared.Database
             modelBuilder.Entity<Role>()
                 .HasKey(entity => entity.Id);
 
+            modelBuilder.Entity<UserRole>().HasNoKey();
+            
             modelBuilder.Entity<UserRole>()
                 .HasOne<User>()
                 .WithMany()
@@ -97,11 +101,6 @@ namespace Gringotts.Api.Shared.Database
             modelBuilder.Entity<Record>()
                 .Property(entity => entity.ActionType)
                 .HasConversion<int>();
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            base.OnConfiguring(optionsBuilder);
         }
     }
 }
