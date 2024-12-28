@@ -4,7 +4,7 @@ using Gringotts.Api.Shared.Endpoints;
 using Gringotts.Api.Shared.Results;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gringotts.Api.Features.User.Endpoints;
+namespace Gringotts.Api.Features.Auth.Endpoints;
 
 public class RegisterUserEndpoint : IEndpoint
 {
