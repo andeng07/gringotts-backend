@@ -1,6 +1,8 @@
+using Gringotts.Api.Shared.Models;
+
 namespace Gringotts.Api.Features.User.Models
 {
-    public record User
+    public record User : IEntity
     {
         public required Guid Id { get; init; }
         public required string CardId { get; set; }
