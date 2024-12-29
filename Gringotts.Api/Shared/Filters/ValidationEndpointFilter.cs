@@ -1,7 +1,7 @@
 using FluentValidation;
 using Gringotts.Api.Shared.Results;
 
-namespace Gringotts.Api.Shared.Endpoints;
+namespace Gringotts.Api.Shared.Filters;
 
 /// <summary>
 /// Provides a filter for endpoint requests, validating incoming requests using the specified
