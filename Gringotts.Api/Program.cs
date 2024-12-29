@@ -2,7 +2,7 @@ using FluentValidation;
 using Gringotts.Api.Features.Auth.Services;
 using Gringotts.Api.Features.User.Services;
 using Gringotts.Api.Shared.Database;
-using Gringotts.Api.Shared.Endpoints;
+using Gringotts.Api.Shared.Extensions;
 using Gringotts.Api.Shared.Services;
 using Microsoft.EntityFrameworkCore;
 

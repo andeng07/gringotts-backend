@@ -1,7 +1,8 @@
 using System.Reflection;
+using Gringotts.Api.Shared.Endpoints;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Gringotts.Api.Shared.Endpoints
+namespace Gringotts.Api.Shared.Extensions
 {
     public static class EndpointExtensions
     {
