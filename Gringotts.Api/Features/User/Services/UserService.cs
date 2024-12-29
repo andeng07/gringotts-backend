@@ -27,6 +27,11 @@ public class UserService(AppDbContext dbContext)
         
         return newUser;
     }
+
+    public async Task<Models.User?> GetUserByIdAsync(Guid userId)
+    {
+        return await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+    }
         
     public async Task<bool> IsUserRegistered(Guid id) => await dbContext.Users.AnyAsync(x => x.Id == id);
 }
