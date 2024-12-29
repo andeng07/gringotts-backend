@@ -27,7 +27,7 @@ public class LoginEndpoint : IEndpoint
 
         var loggedInUserId = passwordCheckResult.Value;
 
-        var token = userJwtService.GenerateUserToken(loggedInUserId);
+        var token = userJwtService.GenerateUserToken(loggedInUserId, request.Email);
 
         return TypedResults.Ok(new LoginUserResponse(token, loggedInUserId));
     }
