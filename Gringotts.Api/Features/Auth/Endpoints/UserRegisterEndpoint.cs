@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gringotts.Api.Features.Auth.Endpoints;
 
-public class RegisterUserEndpoint : IEndpoint
+public class UserRegisterEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {

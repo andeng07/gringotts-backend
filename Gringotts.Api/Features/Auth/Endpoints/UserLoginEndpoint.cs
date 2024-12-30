@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gringotts.Api.Features.Auth.Endpoints;
 
-public class LoginEndpoint : IEndpoint
+public class UserLoginEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {

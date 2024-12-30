@@ -9,7 +9,7 @@ namespace Gringotts.Api.Shared.Filters;
 /// </summary>
 /// <param name="validator">An instance of <see cref="IValidator{TRequest}"/> used to validate incoming requests.</param>
 /// <typeparam name="TRequest">The type of the request object that this filter validates.</typeparam>
-public class ValidationEndpointFilter<TRequest>(IValidator<TRequest>? validator) : IEndpointFilter
+public class RequestValidationFilter<TRequest>(IValidator<TRequest>? validator) : IEndpointFilter
 {
     /// <summary>
     /// Invokes the filter to validate the request. If validation passes, the request is allowed to proceed.
