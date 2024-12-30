@@ -10,7 +10,7 @@ namespace Gringotts.Api.Features.Auth.Services;
 /// <summary>
 /// A service for generating and validating JSON Web Tokens (JWT).
 /// </summary>
-public abstract class JwtService(IConfiguration configuration)
+public class JwtService(IConfiguration configuration)
 {
     private readonly string _secret =
         configuration["Jwt:Secret"] ?? throw new ConfigurationMissingFieldException("Jwt:Secret");
