@@ -32,11 +32,10 @@ public class RequestValidationFilter<TRequest>(IValidator<TRequest>? validator) 
 
         if (!result.IsValid)
         {
-            return Result.Failure(result.Errors.Select(e =>
-                    new Error(
-                        $"Validation.{nameof(TRequest)}.{e.ErrorCode}",
-                        e.ErrorMessage, Error.ErrorType.Validation))
-                .ToArray());
+            var errors = result.Errors.Select(error =>
+                new Error(error.ErrorCode, error.ErrorMessage, Error.ErrorType.Validation));
+
+            return Microsoft.AspNetCore.Http.Results.BadRequest(errors);
         }
 
         return await next(context);

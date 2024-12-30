@@ -94,14 +94,11 @@ public class GetUserEndpoint : IEndpoint
         var user = await service.GetUserByIdAsync(id);
         if (user == null)
         {
-            return Results.NotFound(new List<Error>
+            var errors = new List<Error>
             {
-                new(
-                    UserErrorCodes.UserNotFound,
-                    "User not found.",
-                    Error.ErrorType.NotFound
-                )
-            });
+                new(UserErrorCodes.UserNotFound, "User not found.", Error.ErrorType.NotFound)
+            };
+            return Results.NotFound(errors);
         }
 
         var response = new GetUserResponse(
