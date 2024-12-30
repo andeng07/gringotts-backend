@@ -9,7 +9,7 @@ namespace Gringotts.Api.Shared.Extensions
         /// <summary>
         /// Adds all endpoint implementations from the executing assembly to the service collection.
         /// </summary>
-        /// <param name="services">The service collection to add the enpoints to.</param>
+        /// <param name="services">The service collection to add the endpoints to.</param>
         /// <returns>The updated service collection.</returns>
         public static IServiceCollection AddEndpoints(this IServiceCollection services) =>
             services.AddEndpoints(Assembly.GetExecutingAssembly());
