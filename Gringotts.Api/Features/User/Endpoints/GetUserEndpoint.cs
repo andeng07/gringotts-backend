@@ -1,4 +1,7 @@
-﻿using Gringotts.Api.Features.User.Services;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Gringotts.Api.Features.Auth.Services;
+using Gringotts.Api.Features.User.Services;
 using Gringotts.Api.Shared.Endpoints;
 using Gringotts.Api.Shared.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -10,11 +13,12 @@ public class GetUserEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPost("/users/{id:guid}", HandleAsync)
-            .WithAuthenticationFilter();
+            .WithAuthenticationFilter()
+            .Produces<GetUserResponse>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound);
     }
-
-    private record GetUserRequest(Guid Id);
-
+    
     private record GetUserResponse(
         Guid Id,
         string CardId,
@@ -24,14 +28,33 @@ public class GetUserEndpoint : IEndpoint
         string LastName
     );
 
-    // TODO: Figure out how to validate ownership
-    private async Task<IResult> HandleAsync(HttpContext httpContext, [FromRoute] Guid id, UserService service)
+    private async Task<IResult> HandleAsync(
+        HttpContext httpContext,
+        [FromRoute] Guid id,
+        UserService service,
+        JwtService jwtService)
     {
-        var user = await service.GetUserByIdAsync(id);
+        var subjectIdString = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
+        if (string.IsNullOrEmpty(subjectIdString))
+        {
+            return Results.Unauthorized();
+        }
+
+        if (!Guid.TryParse(subjectIdString, out var subjectId))
+        {
+            return Results.BadRequest(new { Message = "Invalid token subject format." });
+        }
+
+        if (subjectId != id)
+        {
+            return Results.Forbid();
+        }
+
+        var user = await service.GetUserByIdAsync(id);
         if (user == null)
         {
-            return Results.NotFound();
+            return Results.NotFound(new { Message = "User not found." });
         }
         
         var response = new GetUserResponse(
@@ -41,8 +64,8 @@ public class GetUserEndpoint : IEndpoint
             user.FirstName,
             user.MiddleName,
             user.LastName
-        );      
-    
+        );
+
         return Results.Ok(response);
     }
 }

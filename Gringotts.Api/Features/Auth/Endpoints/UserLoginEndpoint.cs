@@ -18,7 +18,7 @@ public class UserLoginEndpoint : IEndpoint
     private async Task<IResult> HandleAsync(
         [FromBody] LoginUserRequest request,
         UserSecretService userSecretService,
-        UserJwtService userJwtService
+        JwtService jwtService
     )
     {
         var passwordCheckResult = await userSecretService.MatchSecretAsync(request.Email, request.Password);
@@ -27,7 +27,7 @@ public class UserLoginEndpoint : IEndpoint
 
         var loggedInUserId = passwordCheckResult.Value;
 
-        var token = userJwtService.GenerateUserToken(loggedInUserId, request.Email);
+        var token = jwtService.GenerateToken(loggedInUserId);
 
         return TypedResults.Ok(new LoginUserResponse(token, loggedInUserId));
     }
