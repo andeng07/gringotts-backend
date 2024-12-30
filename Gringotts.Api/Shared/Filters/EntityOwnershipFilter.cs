@@ -1,6 +1,4 @@
 ﻿using System.Security.Claims;
-using Gringotts.Api.Features.Auth.Services;
-using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Gringotts.Api.Shared.Filters;
 

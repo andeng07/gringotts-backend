@@ -1,5 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Gringotts.Api.Features.Auth.Services;
 using Gringotts.Api.Features.User.Services;
 using Gringotts.Api.Shared.Endpoints;
