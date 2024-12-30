@@ -49,7 +49,9 @@ public record Result
     /// Implicitly converts an <see cref="Error"/> to a failed <see cref="Result"/>.
     /// </summary>
     /// <param name="error">The error to convert.</param>
-    public static implicit operator Result(Error error) => new(new List<Error> { error });
+    public static implicit operator Result(Error error) => new([error]);
+    
+    public static implicit operator Result(List<Error> errors) => new(errors.ToArray());
 }
 
 /// <summary>
@@ -81,8 +83,10 @@ public sealed record TypedResult<TValue> : Result
     /// Implicitly converts an <see cref="Error"/> to a failed <see cref="TypedResult{TValue}"/>.
     /// </summary>
     /// <param name="error">The error to convert.</param>
-    public static implicit operator TypedResult<TValue>(Error error) => new(new List<Error> { error });
-
+    public static implicit operator TypedResult<TValue>(Error error) => new([error]);
+    
+    public static implicit operator TypedResult<TValue>(List<Error> errors) => new(errors.ToArray());
+    
     /// <summary>
     /// Implicitly converts a value to a successful <see cref="TypedResult{TValue}"/>.
     /// </summary>
