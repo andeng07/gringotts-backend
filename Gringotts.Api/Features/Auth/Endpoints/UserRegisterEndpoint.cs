@@ -30,7 +30,7 @@ public class UserRegisterEndpoint : IEndpoint
             .Produces<List<Error>>(StatusCodes.Status500InternalServerError);
     }
 
-    private static async Task<IResult> HandleAsync(
+    public static async Task<IResult> HandleAsync(
         [FromBody] RegisterUserRequest request,
         UserSecretService userSecretService,
         UserService userService,
@@ -82,7 +82,7 @@ public class UserRegisterEndpoint : IEndpoint
         return Results.Created($"/users/{registeredUserResult.Value.Id}", response);
     }
 
-    private class RegisterUserRequestValidator : AbstractValidator<RegisterUserRequest>
+    public class RegisterUserRequestValidator : AbstractValidator<RegisterUserRequest>
     {
         public RegisterUserRequestValidator()
         {
@@ -108,7 +108,7 @@ public class UserRegisterEndpoint : IEndpoint
         }
     }
 
-    private record RegisterUserRequest(
+    public record RegisterUserRequest(
         string Email,
         string CardId,
         string SchoolId,

@@ -27,7 +27,7 @@ public class UserLoginEndpoint : IEndpoint
             .Produces<List<Error>>(StatusCodes.Status401Unauthorized);
     }
     
-    private static async Task<IResult> HandleAsync(
+    public static async Task<IResult> HandleAsync(
         [FromBody] LoginUserRequest request,
         UserSecretService userSecretService,
         JwtService jwtService
@@ -54,7 +54,7 @@ public class UserLoginEndpoint : IEndpoint
         return Results.Ok(new LoginUserResponse(token, loggedInUserId));
     }
     
-    private class LoginUserRequestValidator : AbstractValidator<LoginUserRequest>
+    public class LoginUserRequestValidator : AbstractValidator<LoginUserRequest>
     {
         public LoginUserRequestValidator()
         {
@@ -68,7 +68,7 @@ public class UserLoginEndpoint : IEndpoint
         }
     }
     
-    private record LoginUserRequest(string Email, string Password);
+    public record LoginUserRequest(string Email, string Password);
 
-    private record LoginUserResponse(string Token, Guid Id);
+    public record LoginUserResponse(string Token, Guid Id);
 }
