@@ -48,8 +48,8 @@ public class GetUserEndpoint : IEndpoint
         UserService service,
         JwtService jwtService)
     {
-        var subjectIdString = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
-
+        var subjectIdString = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
         // Unauthorized if there's no subject in the JWT
         if (string.IsNullOrEmpty(subjectIdString))
         {
