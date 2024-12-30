@@ -3,24 +3,8 @@ namespace Gringotts.Api.Shared.Results;
 /// <summary>
 /// Represents an error with a specific type, code, and description.
 /// </summary>
-public readonly struct Error(string code, string description, Error.ErrorType errorType)
+public record Error(string Code, string Description, Error.ErrorType Type)
 {
-
-    /// <summary>
-    /// A unique identifier for the error.
-    /// </summary>
-    public readonly string Code = code;
-
-    /// <summary>
-    /// A description providing details about the error.
-    /// </summary>
-    public readonly string Description = description;
-
-    /// <summary>
-    /// The category of the error, as defined by <see cref="ErrorType"/>.
-    /// </summary>
-    public readonly ErrorType Type = errorType;
-
     /// <summary>
     /// Enumerates possible types of errors.
     /// </summary>
