@@ -17,7 +17,6 @@ namespace Gringotts.Api.Features.Auth.Endpoints;
 /// If the login fails, it returns a 401 Unauthorized error. Additionally, validation errors are handled with appropriate error codes.
 /// </remarks>
 /// <response code="200">Returns a JWT token and the user's ID when login is successful.</response>
-/// <response code="400">Returns validation errors if the request body is invalid.</response>
 /// <response code="401">Returns an error if the email or password is incorrect.</response>
 public class UserLoginEndpoint : IEndpoint
 {
