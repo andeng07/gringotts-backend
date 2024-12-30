@@ -50,6 +50,12 @@ public static class FilterExtensions
         });
     }
 
+    /// <summary>
+    /// Adds an authentication filter to the route handler pipeline. This filter ensures that the incoming
+    /// request is authenticated before proceeding.
+    /// </summary>
+    /// <param name="builder">The <see cref="RouteHandlerBuilder"/> to which the authentication filter is added.</param>
+    /// <returns>The modified <see cref="RouteHandlerBuilder"/> with the authentication filter.</returns>
     public static RouteHandlerBuilder WithAuthenticationFilter(this RouteHandlerBuilder builder)
     {
         return builder.AddEndpointFilter<AuthenticationFilter>();
