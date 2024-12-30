@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Gringotts.Api.Shared.Exceptions;
+using Gringotts.Api.Shared.Errors;
 using Gringotts.Api.Shared.Results;
 using Microsoft.IdentityModel.Tokens;
 
