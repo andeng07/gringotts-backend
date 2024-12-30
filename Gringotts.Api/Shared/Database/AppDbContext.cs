@@ -16,7 +16,6 @@ namespace Gringotts.Api.Shared.Database
         public DbSet<UserRole> UserRoles { get; set; }
 
         public DbSet<Reader> Readers { get; set; }
-        public DbSet<ReaderSecret> ReaderSecrets { get; set; }
         public DbSet<ReaderAnalytics> ReaderAnalytics { get; set; }
         public DbSet<Location> Locations { get; set; }
 
@@ -65,14 +64,6 @@ namespace Gringotts.Api.Shared.Database
                 .HasOne<Location>()
                 .WithMany()
                 .HasForeignKey(entity => entity.LocationId);        
-
-            modelBuilder.Entity<ReaderSecret>()
-                .HasKey(entity => entity.Id);
-
-            modelBuilder.Entity<ReaderSecret>()
-                .HasOne<Reader>()
-                .WithOne()
-                .HasForeignKey<ReaderSecret>(entity => entity.ReaderId);
 
             modelBuilder.Entity<ReaderAnalytics>()
                 .HasKey(entity => entity.Id);
