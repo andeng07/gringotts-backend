@@ -4,7 +4,6 @@ using Gringotts.Api.Shared.Endpoints;
 using Gringotts.Api.Shared.Errors;
 using Gringotts.Api.Shared.Extensions;
 using Gringotts.Api.Shared.Results;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gringotts.Api.Features.Auth.Endpoints;
@@ -23,7 +22,7 @@ public class UserLoginEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapGroup("/auth").MapPost("/login", HandleAsync)
-            .WithRequestValidation<LoginRequest>()
+            .WithRequestValidation<LoginUserRequest>()
             .Produces<LoginUserResponse>()
             .Produces<List<Error>>(StatusCodes.Status401Unauthorized);
     }
