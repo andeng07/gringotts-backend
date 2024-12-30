@@ -10,6 +10,19 @@ namespace Gringotts.Api.Shared.Extensions;
 public static class FilterExtensions
 {
     /// <summary>
+    /// Adds a request validation filter to the route handler pipeline. This filter validates the incoming
+    /// request based on the specified request type.
+    /// </summary>
+    /// <typeparam name="TRequest">The type of the request object to be validated.</typeparam>
+    /// <param name="builder">The <see cref="RouteHandlerBuilder"/> to which the validation filter is added.</param>
+    /// <returns>The modified <see cref="RouteHandlerBuilder"/> with the request validation filter.</returns>
+    public static RouteHandlerBuilder WithRequestValidation<TRequest>(this RouteHandlerBuilder builder)
+    {
+        return builder.AddEndpointFilter<RequestValidationFilter<TRequest>>()
+            .ProducesValidationProblem();
+    }
+    
+    /// <summary>
     /// Adds an entity ownership filter to the route handler pipeline. This filter ensures that the entity
     /// is owned by the current user (as determined by the provided <paramref name="idSelector"/> function).
     /// </summary>
