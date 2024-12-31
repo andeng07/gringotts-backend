@@ -30,16 +30,14 @@ public class EntityOwnershipFilter<TRequest>(Func<TRequest, Guid> idSelector)
 
         if (userId == null)
         {
-            return Microsoft.AspNetCore.Http.Results.BadRequest(
-                "The user identifier (UserId) is missing from the authentication claims. Please ensure the user is properly authenticated."
-            );
+            return Microsoft.AspNetCore.Http.Results.Forbid();
         }
         
         var userIdAsGuid = Guid.Parse(userId);
 
         if (userIdAsGuid != id)
         {
-            return Microsoft.AspNetCore.Http.Results.Unauthorized();
+            return Microsoft.AspNetCore.Http.Results.Forbid();
         }
         
         return await next(context);
