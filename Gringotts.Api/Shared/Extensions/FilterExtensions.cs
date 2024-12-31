@@ -1,6 +1,7 @@
 ﻿using Gringotts.Api.Shared.Database;
 using Gringotts.Api.Shared.Filters;
 using Gringotts.Api.Shared.Models;
+using Gringotts.Api.Shared.Results;
 
 namespace Gringotts.Api.Shared.Extensions;
 
@@ -19,9 +20,9 @@ public static class FilterExtensions
     public static RouteHandlerBuilder WithRequestValidation<TRequest>(this RouteHandlerBuilder builder)
     {
         return builder.AddEndpointFilter<RequestValidationFilter<TRequest>>()
-            .ProducesValidationProblem();
+            .Produces(StatusCodes.Status400BadRequest);
     }
-    
+
     /// <summary>
     /// Adds an entity ownership filter to the route handler pipeline. This filter ensures that the entity
     /// is owned by the current user (as determined by the provided <paramref name="idSelector"/> function).
@@ -34,12 +35,12 @@ public static class FilterExtensions
         Func<TRequest, Guid> idSelector)
     {
         return builder.AddEndpointFilterFactory(
-            (_, next) => async context =>
-            {
-                var filter = new EntityOwnershipFilter<TRequest>(idSelector);
-                return await filter.InvokeAsync(context, next);
-            }
-        );
+                (_, next) => async context =>
+                {
+                    var filter = new EntityOwnershipFilter<TRequest>(idSelector);
+                    return await filter.InvokeAsync(context, next);
+                })
+            .Produces(StatusCodes.Status403Forbidden);
     }
 
     /// <summary>
@@ -56,11 +57,12 @@ public static class FilterExtensions
         Func<TRequest, Guid> idSelector) where TEntity : class, IEntity
     {
         return builder.AddEndpointFilterFactory((_, next) => async context =>
-        {
-            var databaseSet = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>().Set<TEntity>();
-            var filter = new EntityExistenceFilter<TEntity, TRequest>(databaseSet, idSelector);
-            return await filter.InvokeAsync(context, next);
-        });
+            {
+                var databaseSet = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>().Set<TEntity>();
+                var filter = new EntityExistenceFilter<TEntity, TRequest>(databaseSet, idSelector);
+                return await filter.InvokeAsync(context, next);
+            })
+            .Produces<List<Error>>(StatusCodes.Status404NotFound);
     }
 
     /// <summary>
@@ -71,7 +73,7 @@ public static class FilterExtensions
     /// <returns>The modified <see cref="RouteHandlerBuilder"/> with the authentication filter.</returns>
     public static RouteHandlerBuilder WithAuthenticationFilter(this RouteHandlerBuilder builder)
     {
-        return builder.AddEndpointFilter<AuthenticationFilter>();
+        return builder.AddEndpointFilter<AuthenticationFilter>()
+            .Produces<List<Error>>(StatusCodes.Status401Unauthorized);
     }
-
 }
