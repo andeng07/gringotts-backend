@@ -1,4 +1,5 @@
 ﻿using Gringotts.Api.Shared.Models;
+using Gringotts.Api.Shared.Results;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gringotts.Api.Shared.Filters;
@@ -30,7 +31,13 @@ public class EntityExistenceFilter<TEntity, TRequest>(DbSet<TEntity> databaseSet
 
         if (!await databaseSet.AnyAsync(x => x.Id == requestId))
         {
-            return Microsoft.AspNetCore.Http.Results.NotFound();
+            var error = new List<Error>
+            {
+                new($"{typeof(TEntity).Name}.NotFound", 
+                    $"{typeof(TEntity).Name} with id: {requestId} not found.",
+                    Error.ErrorType.NotFound)
+            };
+            return Microsoft.AspNetCore.Http.Results.NotFound(error);
         }
 
         return await next(context);
