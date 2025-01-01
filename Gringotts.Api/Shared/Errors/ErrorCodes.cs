@@ -30,6 +30,28 @@ public static class ValidationErrorCodes
     public const string InvalidTokenSubjectFormat = "Validation.Token.SubjectFormat";
 }
 
+public static class ReaderErrorCodes
+{
+    public const string NameRequired = "Reader.Name.Required";
+    public const string NameTooLong = "Reader.Name.TooLong";
+    public const string LocationNotFound = "Reader.Location.NotFound";
+    public const string ReaderCreationFailed = "Reader.Creation.Failed";
+}
+
+public static class LocationErrorCodes
+{
+    public const string BuildingNameRequired = "Location.BuildingName.Required";
+    public const string BuildingNameEmpty = "Location.BuildingName.Empty";
+    public const string BuildingNameTooLong = "Location.BuildingName.TooLong";
+    
+    public const string RoomNameEmpty = "Location.RoomName.Empty";
+    public const string RoomNameTooLong = "Location.RoomName.TooLong";
+
+    public const string LocationAlreadyExists = "Location.AlreadyExists";
+    public const string LocationNotFound = "Location.NotFound";
+}
+
+
 public static class UserErrorCodes
 {
     public const string UserNotFound = "User.NotFound";
