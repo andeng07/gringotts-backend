@@ -59,12 +59,25 @@ public class UserLoginEndpoint : IEndpoint
         public LoginUserRequestValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email is required.").WithErrorCode(ValidationErrorCodes.EmailRequired)
-                .EmailAddress().WithMessage("Invalid email format.").WithErrorCode(ValidationErrorCodes.InvalidEmailFormat);
+                .NotNull()
+                    .WithMessage("Email is required.")
+                    .WithErrorCode(ValidationErrorCodes.EmailRequired)
+                .NotEmpty()
+                    .WithMessage("Email is required.")
+                    .WithErrorCode(ValidationErrorCodes.EmailRequired)
+                .EmailAddress().WithMessage("Invalid email format.")
+                    .WithErrorCode(ValidationErrorCodes.InvalidEmailFormat);
             
             RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("Password is required.").WithErrorCode(ValidationErrorCodes.PasswordRequired)
-                .MinimumLength(6).WithMessage("Password must be at least 6 characters long.").WithErrorCode(ValidationErrorCodes.PasswordTooShort);
+                .NotNull()
+                    .WithMessage("Password is required.")
+                    .WithErrorCode(ValidationErrorCodes.PasswordRequired)
+                .NotEmpty()
+                    .WithMessage("Password is required.")
+                    .WithErrorCode(ValidationErrorCodes.PasswordRequired)
+                .MinimumLength(6)
+                    .WithMessage("Password must be at least 6 characters long.")
+                    .WithErrorCode(ValidationErrorCodes.PasswordTooShort);
         }
     }
     

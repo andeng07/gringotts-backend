@@ -87,24 +87,40 @@ public class UserRegisterEndpoint : IEndpoint
         public RegisterUserRequestValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email is required.").WithErrorCode(ValidationErrorCodes.EmailRequired)
-                .EmailAddress().WithMessage("Invalid email format.").WithErrorCode(ValidationErrorCodes.InvalidEmailFormat);
+                .NotEmpty()
+                    .WithMessage("Email is required.")
+                    .WithErrorCode(ValidationErrorCodes.EmailRequired)
+                .EmailAddress()
+                    .WithMessage("Invalid email format.")
+                    .WithErrorCode(ValidationErrorCodes.InvalidEmailFormat);
 
             RuleFor(x => x.CardId)
-                .NotEmpty().WithMessage("Card ID is required.").WithErrorCode(ValidationErrorCodes.CardIdRequired);
+                .NotEmpty()
+                    .WithMessage("Card ID is required.")
+                    .WithErrorCode(ValidationErrorCodes.CardIdRequired);
 
             RuleFor(x => x.SchoolId)
-                .NotEmpty().WithMessage("School ID is required.").WithErrorCode(ValidationErrorCodes.SchoolIdRequired);
+                .NotEmpty()
+                    .WithMessage("School ID is required.")
+                    .WithErrorCode(ValidationErrorCodes.SchoolIdRequired);
 
             RuleFor(x => x.FirstName)
-                .NotEmpty().WithMessage("First name is required.").WithErrorCode(ValidationErrorCodes.FirstNameRequired);
+                .NotEmpty()
+                    .WithMessage("First name is required.")
+                    .WithErrorCode(ValidationErrorCodes.FirstNameRequired);
 
             RuleFor(x => x.LastName)
-                .NotEmpty().WithMessage("Last name is required.").WithErrorCode(ValidationErrorCodes.LastNameRequired);
+                .NotEmpty()
+                    .WithMessage("Last name is required.")
+                    .WithErrorCode(ValidationErrorCodes.LastNameRequired);
 
             RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("Password is required.").WithErrorCode(ValidationErrorCodes.PasswordRequired)
-                .MinimumLength(6).WithMessage("Password must be at least 6 characters long.").WithErrorCode(ValidationErrorCodes.PasswordTooShort);
+                .NotEmpty()
+                    .WithMessage("Password is required.")
+                    .WithErrorCode(ValidationErrorCodes.PasswordRequired)
+                .MinimumLength(6)
+                    .WithMessage("Password must be at least 6 characters long.")
+                    .WithErrorCode(ValidationErrorCodes.PasswordTooShort);
         }
     }
 
