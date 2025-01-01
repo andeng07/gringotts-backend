@@ -25,7 +25,7 @@ public class UserRegisterEndpoint : IEndpoint
     {
         app.MapGroup("/auth").MapPost("/register", HandleAsync)
             .WithRequestValidation<RegisterUserRequest>()
-            .Produces<RegisterUserResponse>()
+            .Produces<RegisterUserResponse>(StatusCodes.Status201Created)
             .Produces<List<Error>>(StatusCodes.Status409Conflict)
             .Produces<List<Error>>(StatusCodes.Status500InternalServerError);
     }
