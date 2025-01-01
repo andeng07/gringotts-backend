@@ -7,12 +7,6 @@ public class ReaderService(AppDbContext appDbContext)
 {
     public async Task<TypedResult<Models.Reader>> CreateReaderAsync(string name, Guid location)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return new Error("Reader.Validation.InvalidName", "Reader name cannot be empty.",
-                Error.ErrorType.Validation);
-        }
-
         var reader = new Models.Reader
         {
             Id = Guid.NewGuid(),
@@ -56,12 +50,6 @@ public class ReaderService(AppDbContext appDbContext)
 
     public async Task<Result> UpdateReader(Guid id, string name, Guid location)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return Result.Failure(new Error("Reader.Validation.InvalidName", "Reader name cannot be empty.",
-                Error.ErrorType.Validation));
-        }
-
         var readerResult = await GetReaderById(id);
 
         if (!readerResult.IsSuccess)
