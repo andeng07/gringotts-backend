@@ -91,15 +91,14 @@ public class GetUserEndpoint : IEndpoint
             return Results.Json(errors, statusCode: StatusCodes.Status403Forbidden);
         }
 
-        var user = await service.GetUserByIdAsync(id);
-        if (user == null)
+        var getUserResult = await service.GetUserByIdAsync(id);
+        
+        if (!getUserResult.IsSuccess)
         {
-            var errors = new List<Error>
-            {
-                new(UserErrorCodes.UserNotFound, "User not found.", Error.ErrorType.NotFound)
-            };
-            return Results.NotFound(errors);
+            return Results.NotFound(getUserResult.Errors);
         }
+
+        var user = getUserResult.Value!;
 
         var response = new GetUserResponse(
             user.Id,

@@ -1,4 +1,5 @@
 using Gringotts.Api.Shared.Database;
+using Gringotts.Api.Shared.Errors;
 using Gringotts.Api.Shared.Results;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,9 +29,16 @@ public class UserService(AppDbContext dbContext)
         return newUser;
     }
 
-    public async Task<Models.User?> GetUserByIdAsync(Guid userId)
+    public async Task<TypedResult<Models.User>> GetUserByIdAsync(Guid userId)
     {
-        return await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+        if (user == null)
+        {
+            return new Error(UserErrorCodes.UserNotFound, $"User with id \"{userId}\" not found", Error.ErrorType.NotFound);
+        }
+
+        return user;
     }
         
     public async Task<bool> IsUserRegistered(Guid id) => await dbContext.Users.AnyAsync(x => x.Id == id);
