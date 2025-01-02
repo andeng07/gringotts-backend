@@ -111,6 +111,30 @@ public static class EndpointHelpers
     }
 
     /// <summary>
+    /// Updates a single entity based on the entity's ID.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type.</typeparam>
+    /// <typeparam name="TResponse">The response type.</typeparam>
+    /// <param name="id">The ID of the entity to update.</param>
+    /// <param name="dbContext">The database context.</param>
+    /// <param name="updateEntity">A function to update the entity.</param>
+    /// <param name="responseMapper">Optional function to map the entity to a response type.</param>
+    /// <returns>A result with the updated entity or an error if not found.</returns>
+    public static async Task<IResult> UpdateEntity<TEntity, TResponse>(
+        Guid id, 
+        AppDbContext dbContext,
+        Action<TEntity> updateEntity, 
+        Func<TEntity, TResponse>? responseMapper = null
+    ) where TEntity : class, IEntity
+    {
+        return await PerformEntityOperation(
+            async () => await dbContext.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id),
+            entityOperation: updateEntity,
+            responseMapper: responseMapper
+        );
+    }
+
+    /// <summary>
     /// Updates a single entity based on a query defined by the entityQuery function.
     /// </summary>
     /// <typeparam name="TEntity">The entity type.</typeparam>
