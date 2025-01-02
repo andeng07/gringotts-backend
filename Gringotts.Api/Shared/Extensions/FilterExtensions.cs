@@ -63,22 +63,21 @@ public static class FilterExtensions
     }
     
     /// <summary>
-    /// Adds an entity existence filter to the route handler pipeline. This filter ensures that the entity
-    /// exists in the database (as determined by the provided <paramref name="idSelector"/> function).
+    /// Adds an entity existence filter to the route handler pipeline. This filter checks if the specified
+    /// entity exists in the database before proceeding. If the entity does not exist, a 404 Not Found error is returned.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the entity class that must exist in the database.</typeparam>
-    /// <typeparam name="TRequest">The type of the request object.</typeparam>
+    /// <typeparam name="TEntity">The type of the entity to check for existence.</typeparam>
+    /// <typeparam name="TRequest">The type of the request object containing the entity identifier.</typeparam>
     /// <param name="builder">The <see cref="RouteHandlerBuilder"/> to which the filter is added.</param>
-    /// <param name="idSelector">A function that selects the entity ID from the request object.</param>
+    /// <param name="entityQuery">A function that queries the database to check for the existence of the entity.</param>
     /// <returns>The modified <see cref="RouteHandlerBuilder"/> with the entity existence filter.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if the database set or the entity does not exist.</exception>
     public static RouteHandlerBuilder WithEntityExistenceFilter<TEntity, TRequest>(this RouteHandlerBuilder builder,
-        Func<TRequest, Guid> idSelector) where TEntity : class, IEntity
+        Func<TEntity, TRequest, bool> entityQuery) where TEntity : class, IEntity
     {
         return builder.AddEndpointFilterFactory((_, next) => async context =>
             {
                 var databaseSet = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>().Set<TEntity>();
-                var filter = new EntityExistenceFilter<TEntity, TRequest>(databaseSet, idSelector);
+                var filter = new EntityExistenceFilter<TEntity, TRequest>(databaseSet, entityQuery);
                 return await filter.InvokeAsync(context, next);
             })
             .Produces<List<Error>>(StatusCodes.Status404NotFound);

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Gringotts.Api.Features.Auth.Models;
 using Gringotts.Api.Features.Auth.Services;
 using Gringotts.Api.Shared.Endpoints;
 using Gringotts.Api.Shared.Errors;
@@ -23,6 +24,7 @@ public class UserLoginEndpoint : IEndpoint
     {
         app.MapGroup("/auth").MapPost("/login", HandleAsync)
             .WithRequestValidation<LoginUserRequest>()
+            .WithEntityExistenceFilter<UserSecret, LoginUserRequest>((secret, request) => secret.Email == request.Email)
             .Produces<LoginUserResponse>()
             .Produces<List<Error>>(StatusCodes.Status401Unauthorized);
     }

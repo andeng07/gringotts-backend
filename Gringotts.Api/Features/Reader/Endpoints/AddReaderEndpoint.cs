@@ -25,7 +25,8 @@ public class AddReaderEndpoint : IEndpoint
     {
         app.MapPost("readers", HandleAsync)
             .WithRequestValidation<AddReaderRequest>()
-            .WithEntityExistenceFilter<Location, AddReaderRequest>(x => x.Location)
+            .WithEntityExistenceFilter<Location, AddReaderRequest>((location, request) =>
+                location.Id == request.Location)
             .WithAuthenticationFilter()
             .Produces<AddReaderResponse>(StatusCodes.Status201Created)
             .Produces<List<Error>>(StatusCodes.Status500InternalServerError);
