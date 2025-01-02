@@ -82,6 +82,18 @@ public static class FilterExtensions
             })
             .Produces<List<Error>>(StatusCodes.Status404NotFound);
     }
+    
+    public static RouteHandlerBuilder WithEntityExistenceFromRouteFilter<TEntity>(this RouteHandlerBuilder builder,
+        string idRouteKey) where TEntity : class, IEntity
+    {
+        return builder.AddEndpointFilterFactory((_, next) => async context =>
+            {
+                var databaseSet = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>().Set<TEntity>();
+                var filter = new EntityExistenceFromRoute<TEntity>(databaseSet, idRouteKey);
+                return await filter.InvokeAsync(context, next);
+            })
+            .Produces<List<Error>>(StatusCodes.Status404NotFound);
+    }
 
     /// <summary>
     /// Adds an authentication filter to the route handler pipeline. This filter ensures that the incoming
