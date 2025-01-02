@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
-using Gringotts.Api.Features.Reader.Services;
+using Gringotts.Api.Features.Reader.Models;
+using Gringotts.Api.Shared.Database;
 using Gringotts.Api.Shared.Endpoints;
+using Gringotts.Api.Shared.Endpoints.Helper;
 using Gringotts.Api.Shared.Errors;
 using Gringotts.Api.Shared.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -21,40 +23,26 @@ public class AddLocationEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("locations", HandleAsync)
+        app.MapPost("locations",
+                async ([FromBody] AddLocationRequest request, AppDbContext dbContext) =>
+                await EndpointHelpers.CreateEntity<Location, AddLocationResponse>(
+                    new Location
+                        { Id = Guid.NewGuid(), BuildingName = request.BuildingName, RoomName = request.RoomName },
+                    dbContext,
+                    entity => $"locations/{entity.Id}",
+                    location => new AddLocationResponse(location.Id, location.BuildingName, location.RoomName)
+                )
+            )
             .WithRequestValidation<AddLocationRequest>()
             .WithAuthenticationFilter()
             .Produces<AddLocationResponse>();
-        // TODO: add error produces
     }
-    
-    public async Task<IResult> HandleAsync([FromBody] AddLocationRequest request, LocationService locationService)
-    {
-        var addLocationResult = await locationService.CreateLocation(request.BuildingName, request.RoomName);
 
-        if (!addLocationResult.IsSuccess)
-        {
-            var errors = addLocationResult.Errors;
-
-            // TODO: Figure out how to be more specify with the add location result
-            return Results.BadRequest(errors);
-        }
-        
-        var location = addLocationResult.Value!;
-
-        var response = new AddLocationResponse(location.Id, location.BuildingName, location.RoomName);
-        
-        return Results.Created($"locations/{location.Id}", response);
-    }
-    
     public class AddLocationRequestValidator : AbstractValidator<AddLocationRequest>
     {
         public AddLocationRequestValidator()
         {
             RuleFor(x => x.BuildingName)
-                .NotNull()
-                    .WithMessage("BuildingName is required")
-                    .WithErrorCode(LocationErrorCodes.BuildingNameRequired)
                 .NotEmpty()
                     .WithMessage("BuildingName is empty")
                     .WithErrorCode(LocationErrorCodes.BuildingNameEmpty)
@@ -63,16 +51,13 @@ public class AddLocationEndpoint : IEndpoint
                     .WithErrorCode(LocationErrorCodes.BuildingNameTooLong);
 
             RuleFor(x => x.RoomName)
-                .NotEmpty()
-                    .WithMessage("RoomName is empty")
-                    .WithErrorCode(LocationErrorCodes.RoomNameEmpty)
                 .MaximumLength(50)
                     .WithMessage("RoomName must not exceed 50 characters")
                     .WithErrorCode(LocationErrorCodes.RoomNameTooLong);
         }
     }
-    
+
     public record AddLocationRequest(string BuildingName, string? RoomName);
-    
+
     public record AddLocationResponse(Guid Id, string BuildingName, string? RoomName);
 }
