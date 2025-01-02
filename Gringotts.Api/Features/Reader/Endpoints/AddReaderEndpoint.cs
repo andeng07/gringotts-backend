@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 using Gringotts.Api.Features.Reader.Models;
-using Gringotts.Api.Features.Reader.Services;
+using Gringotts.Api.Shared.Database;
 using Gringotts.Api.Shared.Endpoints;
+using Gringotts.Api.Shared.Endpoints.Helper;
 using Gringotts.Api.Shared.Errors;
 using Gringotts.Api.Shared.Extensions;
-using Gringotts.Api.Shared.Results;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gringotts.Api.Features.Reader.Endpoints;
@@ -23,30 +23,22 @@ public class AddReaderEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("readers", HandleAsync)
+        app.MapPost("readers", async ([FromBody] AddReaderRequest request, AppDbContext context) =>
+                await EndpointHelpers.CreateEntity<Models.Reader, AddReaderResponse>(
+                    new Models.Reader
+                    {
+                        Id = Guid.NewGuid(), Name = request.Name, LocationId = request.Location,
+                        AccessToken = Guid.NewGuid().ToString()
+                    },
+                    context,
+                    entity => $"readers/{entity.Id}",
+                    reader => new AddReaderResponse(reader.Id, reader.Name, reader.LocationId)
+                )
+            )
             .WithRequestValidation<AddReaderRequest>()
-            .WithEntityExistenceFilter<Location, AddReaderRequest>((location, request) =>
-                location.Id == request.Location)
+            .WithEntityExistenceFilter<Location, AddReaderRequest>(request => request.Location)
             .WithAuthenticationFilter()
-            .Produces<AddReaderResponse>(StatusCodes.Status201Created)
-            .Produces<List<Error>>(StatusCodes.Status500InternalServerError);
-    }
-
-    public async Task<IResult> HandleAsync([FromBody] AddReaderRequest request, ReaderService service)
-    {
-        var createReaderResult = await service.CreateReaderAsync(
-            request.Name, request.Location);
-
-        if (!createReaderResult.IsSuccess)
-        {
-            return Results.Json(createReaderResult.Errors, statusCode: StatusCodes.Status500InternalServerError);
-        }
-        
-        var reader = createReaderResult.Value!;
-
-        var response = new AddReaderResponse(reader.Id, reader.Name, reader.LocationId);
-        
-        return Results.Created($"readers/{reader.Id}", response);
+            .Produces<AddReaderResponse>(StatusCodes.Status201Created);
     }
     
     public class RegisterReaderRequestValidator : AbstractValidator<AddReaderRequest>
@@ -54,9 +46,12 @@ public class AddReaderEndpoint : IEndpoint
         public RegisterReaderRequestValidator()
         {
             RuleFor(x => x.Name)
-                .NotNull().WithMessage("Name is required").WithErrorCode(ReaderErrorCodes.NameRequired)
-                .NotEmpty().WithMessage("Name is required").WithErrorCode(ReaderErrorCodes.NameRequired)
-                .MaximumLength(50).WithMessage("Name must not exceed 50 characters").WithErrorCode(ReaderErrorCodes.NameTooLong);
+                .NotEmpty()
+                    .WithMessage("Name is required")
+                    .WithErrorCode(ReaderErrorCodes.NameRequired)
+                .MaximumLength(50)
+                    .WithMessage("Name must not exceed 50 characters")
+                    .WithErrorCode(ReaderErrorCodes.NameTooLong);
         }
     }
     
