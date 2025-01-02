@@ -19,11 +19,14 @@ public class DeleteUserEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapDelete("users/{id:guid}",
-                (Guid id, AppDbContext dbContext) =>
-                    EndpointHelpers.DeleteEntity<Models.User, DeleteUserResponse>(id, dbContext, entity =>
-                        new DeleteUserResponse(
+                async (Guid id, AppDbContext dbContext) =>
+                    await EndpointHelpers.DeleteEntity<Models.User, DeleteUserResponse>(
+                        id,
+                        dbContext,
+                        entity => new DeleteUserResponse(
                             entity.Id, entity.CardId, entity.SchoolId, entity.FirstName, entity.MiddleName,
-                            entity.LastName)
+                            entity.LastName
+                        )
                     )
             )
             .WithAuthenticationFilter()
