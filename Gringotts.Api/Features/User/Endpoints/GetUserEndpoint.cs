@@ -1,11 +1,8 @@
-﻿using System.Security.Claims;
-using Gringotts.Api.Features.Auth.Services;
-using Gringotts.Api.Features.User.Services;
+﻿using Gringotts.Api.Shared.Database;
 using Gringotts.Api.Shared.Endpoints;
-using Gringotts.Api.Shared.Errors;
+using Gringotts.Api.Shared.Endpoints.Helper;
 using Gringotts.Api.Shared.Extensions;
 using Gringotts.Api.Shared.Results;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Gringotts.Api.Features.User.Endpoints;
 
@@ -24,8 +21,17 @@ public class GetUserEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/users/{id:guid}", HandleAsync)
+        app.MapGet("/users/{id:guid}",
+                async (Guid id, AppDbContext dbContext) =>
+                    await EndpointHelpers.GetEntity<Models.User, GetUserResponse>(
+                        id,
+                        dbContext,
+                        entity => new GetUserResponse(entity.Id, entity.CardId, entity.SchoolId,
+                            entity.FirstName, entity.MiddleName, entity.LastName)
+                    )
+            )
             .WithAuthenticationFilter()
+            .WithEntityOwnershipFromRouteFilter("id")
             .Produces<GetUserResponse>()
             .Produces<List<Error>>(StatusCodes.Status401Unauthorized)
             .Produces<List<Error>>(StatusCodes.Status403Forbidden)
@@ -41,74 +47,4 @@ public class GetUserEndpoint : IEndpoint
         string LastName
     );
 
-    private async Task<IResult> HandleAsync(
-        HttpContext httpContext,
-        [FromRoute] Guid id,
-        UserService service,
-        JwtService jwtService)
-    {
-        var subjectIdString = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        
-        // Unauthorized if there's no subject in the JWT
-        if (string.IsNullOrEmpty(subjectIdString))
-        {
-            var errors = new List<Error>
-            {
-                new(
-                    AuthErrorCodes.TokenNotFound,
-                    "Authentication token not found in the request.",
-                    Error.ErrorType.Validation
-                )
-            };
-
-            return Results.Json(errors, statusCode: StatusCodes.Status401Unauthorized);
-        }
-
-        // Invalid token subject format
-        if (!Guid.TryParse(subjectIdString, out var subjectId))
-        {
-            return Results.BadRequest(new List<Error>
-            {
-                new(
-                    AuthErrorCodes.InvalidTokenFormat,
-                    "Invalid token subject format.",
-                    Error.ErrorType.Validation
-                )
-            });
-        }
-
-        // Forbidden if the user tries to access another user's data
-        if (subjectId != id)
-        {
-            var errors = new List<Error>
-            {
-                new(
-                    AuthErrorCodes.AccessDenied,
-                    "You are not authorized to access this user's data.",
-                    Error.ErrorType.AccessUnauthorized
-                )
-            };
-            return Results.Json(errors, statusCode: StatusCodes.Status403Forbidden);
-        }
-
-        var getUserResult = await service.GetUserByIdAsync(id);
-        
-        if (!getUserResult.IsSuccess)
-        {
-            return Results.NotFound(getUserResult.Errors);
-        }
-
-        var user = getUserResult.Value!;
-
-        var response = new GetUserResponse(
-            user.Id,
-            user.CardId,
-            user.SchoolId,
-            user.FirstName,
-            user.MiddleName,
-            user.LastName
-        );
-
-        return Results.Ok(response);
-    }
 }
