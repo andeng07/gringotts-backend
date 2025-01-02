@@ -11,6 +11,34 @@ namespace Gringotts.Api.Shared.Endpoints.Helper;
 public static class EndpointHelpers
 {
     /// <summary>
+    /// Creates a new entity in the database.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type.</typeparam>
+    /// <typeparam name="TResponse">The response type.</typeparam>
+    /// <param name="entity">The entity to create.</param>
+    /// <param name="dbContext">The database context.</param>
+    /// <param name="responseMapper">Optional function to map the entity to a response type.</param>
+    /// <returns>A result with the created entity or an error if creation fails.</returns>
+    public static async Task<IResult> CreateEntity<TEntity, TResponse>(
+        TEntity entity, 
+        AppDbContext dbContext, 
+        Func<TEntity, TResponse>? responseMapper = null
+    ) where TEntity : class, IEntity
+    {
+        return await PerformEntityOperation(
+            async () =>
+            {
+                // Add the entity to the DbSet
+                await dbContext.Set<TEntity>().AddAsync(entity);
+                await dbContext.SaveChangesAsync();
+                return entity;
+            },
+            responseMapper: responseMapper
+        );
+    }
+
+    
+    /// <summary>
     /// Retrieves a single entity by its GUID.
     /// </summary>
     /// <typeparam name="TEntity">The entity type.</typeparam>
