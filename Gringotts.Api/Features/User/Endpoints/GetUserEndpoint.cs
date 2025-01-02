@@ -33,9 +33,7 @@ public class GetUserEndpoint : IEndpoint
             .WithAuthenticationFilter()
             .WithEntityOwnershipFromRouteFilter("id")
             .Produces<GetUserResponse>()
-            .Produces<List<Error>>(StatusCodes.Status401Unauthorized)
-            .Produces<List<Error>>(StatusCodes.Status403Forbidden)
-            .Produces<List<Error>>(StatusCodes.Status404NotFound);
+            .Produces<Error>(StatusCodes.Status404NotFound);
     }
 
     private record GetUserResponse(
