@@ -10,8 +10,8 @@ namespace Gringotts.Api.Shared.Filters;
 /// <typeparam name="TEntity">The type of the entity to check for existence in the database.</typeparam>
 /// <typeparam name="TRequest">The type of the request object containing the entity ID.</typeparam>
 /// <param name="databaseSet">The <see cref="DbSet{TEntity}"/> representing the collection of entities in the database.</param>
-/// <param name="entityQuery">A function that selects the entity ID from the request object.</param>
-public class EntityExistenceFilter<TEntity, TRequest>(DbSet<TEntity> databaseSet, Func<TEntity, TRequest, bool> entityQuery)
+/// <param name="idSelector">A function that selects the entity ID from the request object.</param>
+public class EntityExistenceFilter<TEntity, TRequest>(DbSet<TEntity> databaseSet, Func<TRequest, Guid> idSelector)
     : IEndpointFilter where TEntity : class, IEntity
 {
     
@@ -27,7 +27,7 @@ public class EntityExistenceFilter<TEntity, TRequest>(DbSet<TEntity> databaseSet
     {
         var request = context.Arguments.OfType<TRequest>().Single();
 
-        if (!await databaseSet.AnyAsync(x => entityQuery(x, request)))
+        if (!await databaseSet.AnyAsync(x => x.Id == idSelector(request)))
         {
             var error = new List<Error>
             {
