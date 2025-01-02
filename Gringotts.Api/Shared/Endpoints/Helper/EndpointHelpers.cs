@@ -17,24 +17,26 @@ public static class EndpointHelpers
     /// <typeparam name="TResponse">The response type.</typeparam>
     /// <param name="entity">The entity to create.</param>
     /// <param name="dbContext">The database context.</param>
+    /// <param name="uri">A function to generate the URI of the created entity.</param>
     /// <param name="responseMapper">Optional function to map the entity to a response type.</param>
-    /// <returns>A result with the created entity or an error if creation fails.</returns>
+    /// <returns>A result with HTTP status 201 Created, the URI of the new resource, and the response payload.</returns>
     public static async Task<IResult> CreateEntity<TEntity, TResponse>(
-        TEntity entity, 
+        TEntity entity,
         AppDbContext dbContext, 
+        Func<TEntity, string> uri,
         Func<TEntity, TResponse>? responseMapper = null
     ) where TEntity : class, IEntity
     {
-        return await PerformEntityOperation(
-            async () =>
-            {
-                // Add the entity to the DbSet
-                await dbContext.Set<TEntity>().AddAsync(entity);
-                await dbContext.SaveChangesAsync();
-                return entity;
-            },
-            responseMapper: responseMapper
-        );
+        var dbSet = dbContext.Set<TEntity>();
+        
+        await dbSet.AddAsync(entity);
+        await dbContext.SaveChangesAsync();
+        
+        var response = responseMapper != null ? responseMapper(entity) : (object) entity;
+        
+        var uriString = uri(entity);
+        
+        return Microsoft.AspNetCore.Http.Results.Created(uriString, response);
     }
 
     
