@@ -42,7 +42,26 @@ public static class FilterExtensions
                 })
             .Produces(StatusCodes.Status403Forbidden);
     }
-
+    
+    /// <summary>
+    /// Adds an entity ownership filter to the route handler pipeline, where the entity ID is extracted
+    /// directly from the route parameters. This filter ensures that the entity is owned by the current user.
+    /// </summary>
+    /// <param name="builder">The <see cref="RouteHandlerBuilder"/> to which the filter is added.</param>
+    /// <param name="idRouteKey">The key used to extract the entity ID from the route.</param>
+    /// <returns>The modified <see cref="RouteHandlerBuilder"/> with the entity ownership filter.</returns>
+    public static RouteHandlerBuilder WithEntityOwnershipFromRouteFilter(this RouteHandlerBuilder builder,
+        string idRouteKey)
+    {
+        return builder.AddEndpointFilterFactory(
+                (_, next) => async context =>
+                {
+                    var filter = new EntityOwnershipFromRouteFilter(idRouteKey);
+                    return await filter.InvokeAsync(context, next);
+                })
+            .Produces(StatusCodes.Status403Forbidden);
+    }
+    
     /// <summary>
     /// Adds an entity existence filter to the route handler pipeline. This filter ensures that the entity
     /// exists in the database (as determined by the provided <paramref name="idSelector"/> function).
