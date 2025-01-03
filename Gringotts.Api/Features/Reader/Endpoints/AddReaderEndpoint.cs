@@ -5,6 +5,7 @@ using Gringotts.Api.Shared.Endpoints;
 using Gringotts.Api.Shared.Endpoints.Helper;
 using Gringotts.Api.Shared.Errors;
 using Gringotts.Api.Shared.Extensions;
+using Gringotts.Api.Shared.Results;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gringotts.Api.Features.Reader.Endpoints;
@@ -38,7 +39,8 @@ public class AddReaderEndpoint : IEndpoint
             .WithRequestValidation<AddReaderRequest>()
             .WithEntityExistenceFilter<Location, AddReaderRequest>(request => request.Location)
             .WithAuthenticationFilter()
-            .Produces<AddReaderResponse>(StatusCodes.Status201Created);
+            .Produces<AddReaderResponse>(StatusCodes.Status201Created)
+            .Produces<Error>(StatusCodes.Status404NotFound);
     }
     
     public class RegisterReaderRequestValidator : AbstractValidator<AddReaderRequest>
