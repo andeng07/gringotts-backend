@@ -22,12 +22,16 @@ public class GetLocationEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapGet("locations/{id:guid}", async (Guid id, AppDbContext dbContext) => await
-            EndpointHelpers.GetEntity<Location, GetLocationResponse>(id, dbContext,
-                entity => new GetLocationResponse(entity.Id, entity.BuildingName, entity.RoomName))
-        )
-        .WithAuthenticationFilter()
-        .Produces<GetLocationResponse>()
-        .Produces<Error>(StatusCodes.Status404NotFound);
+                EndpointHelpers.GetEntity<Location, GetLocationResponse>(
+                    id,
+                    dbContext,
+                    responseMapper: location =>
+                        new GetLocationResponse(location.Id, location.BuildingName, location.RoomName)
+                )
+            )
+            .WithAuthenticationFilter()
+            .Produces<GetLocationResponse>()
+            .Produces<Error>(StatusCodes.Status404NotFound);
     }
 
     public record GetLocationResponse(Guid Id, string BuildingName, string? RoomName);

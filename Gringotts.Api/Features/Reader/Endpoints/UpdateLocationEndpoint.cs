@@ -28,14 +28,15 @@ public class UpdateLocationEndpoint : IEndpoint
                 async ([FromBody] UpdateLocationRequest request, Guid id, AppDbContext dbContext) =>
                 await EndpointHelpers.UpdateEntity<Location, UpdateLocationResponse>(
                     id, dbContext,
-                    updateEntity: entity =>
+                    updateEntity: location =>
                     {
-                        entity.BuildingName = request.BuildingName;
-                        entity.RoomName = request.RoomName;
+                        location.BuildingName = request.BuildingName;
+                        location.RoomName = request.RoomName;
                     },
-                    responseMapper: entity => new UpdateLocationResponse(
-                        entity.Id, entity.BuildingName, entity.RoomName
-                    )
+                    responseMapper: entity =>
+                        new UpdateLocationResponse(
+                            entity.Id, entity.BuildingName, entity.RoomName
+                        )
                 )
             )
             .WithAuthenticationFilter()

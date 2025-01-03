@@ -22,12 +22,15 @@ public class DeleteLocationEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapDelete("locations/{id:guid}", async (Guid id, AppDbContext dbContext) =>
-            await EndpointHelpers.DeleteEntity<Location, DeleteLocationResponse>(id, dbContext,
-                entity => new DeleteLocationResponse(entity.Id, entity.BuildingName, entity.RoomName))
-        )
-        .WithAuthenticationFilter()
-        .Produces<DeleteLocationResponse>()
-        .Produces<Error>(StatusCodes.Status404NotFound);;
+                await EndpointHelpers.DeleteEntity<Location, DeleteLocationResponse>(
+                    id,
+                    dbContext,
+                    responseMapper: entity =>
+                        new DeleteLocationResponse(entity.Id, entity.BuildingName, entity.RoomName))
+            )
+            .WithAuthenticationFilter()
+            .Produces<DeleteLocationResponse>()
+            .Produces<Error>(StatusCodes.Status404NotFound);
     }
 
     public record DeleteLocationResponse(Guid Id, string BuildingName, string? RoomName);

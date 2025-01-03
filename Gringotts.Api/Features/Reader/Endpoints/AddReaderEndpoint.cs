@@ -28,12 +28,14 @@ public class AddReaderEndpoint : IEndpoint
                 await EndpointHelpers.CreateEntity<Models.Reader, AddReaderResponse>(
                     new Models.Reader
                     {
-                        Id = Guid.NewGuid(), Name = request.Name, LocationId = request.Location,
+                        Id = Guid.NewGuid(),
+                        Name = request.Name,
+                        LocationId = request.Location,
                         AccessToken = Guid.NewGuid().ToString()
                     },
                     context,
-                    entity => $"readers/{entity.Id}",
-                    reader => new AddReaderResponse(reader.Id, reader.Name, reader.LocationId)
+                    uri: reader => $"readers/{reader.Id}",
+                    responseMapper: reader => new AddReaderResponse(reader.Id, reader.Name, reader.LocationId)
                 )
             )
             .WithRequestValidation<AddReaderRequest>()
