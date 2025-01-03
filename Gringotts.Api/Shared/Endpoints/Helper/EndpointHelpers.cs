@@ -159,7 +159,11 @@ public static class EndpointHelpers
     {
         return await PerformEntityOperation(
             async () => await dbContext.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id),
-            entityOperation: updateEntity,
+            entityOperation: entity =>
+            {
+                updateEntity(entity);
+                dbContext.SaveChanges();
+            },
             responseMapper: responseMapper
         );
     }
