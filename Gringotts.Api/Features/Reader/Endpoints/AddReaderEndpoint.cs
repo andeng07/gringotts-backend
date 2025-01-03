@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Gringotts.Api.Features.Auth.Services;
 using Gringotts.Api.Features.Reader.Models;
 using Gringotts.Api.Shared.Database;
 using Gringotts.Api.Shared.Endpoints;
@@ -24,19 +25,24 @@ public class AddReaderEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("readers", async ([FromBody] AddReaderRequest request, AppDbContext context) =>
-                await EndpointHelpers.CreateEntity<Models.Reader, AddReaderResponse>(
-                    new Models.Reader
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = request.Name,
-                        LocationId = request.Location,
-                        AccessToken = Guid.NewGuid().ToString()
-                    },
-                    context,
-                    uri: reader => $"readers/{reader.Id}",
-                    responseMapper: reader => new AddReaderResponse(reader.Id, reader.Name, reader.LocationId)
-                )
+        app.MapPost("readers",
+                async ([FromBody] AddReaderRequest request, AppDbContext context, JwtService jwtService) =>
+                {
+                    var newId = Guid.NewGuid();
+                    
+                    await EndpointHelpers.CreateEntity<Models.Reader, AddReaderResponse>(
+                        new Models.Reader
+                        {
+                            Id = newId,
+                            Name = request.Name,
+                            LocationId = request.Location,
+                            AccessToken = jwtService.GenerateToken(newId)
+                        },
+                        context,
+                        uri: reader => $"readers/{reader.Id}",
+                        responseMapper: reader => new AddReaderResponse(reader.Id, reader.Name, reader.LocationId)
+                    );
+                }
             )
             .WithRequestValidation<AddReaderRequest>()
             .WithEntityExistenceFilter<Location, AddReaderRequest>(request => request.Location)
@@ -44,7 +50,7 @@ public class AddReaderEndpoint : IEndpoint
             .Produces<AddReaderResponse>(StatusCodes.Status201Created)
             .Produces<Error>(StatusCodes.Status404NotFound);
     }
-    
+
     public class RegisterReaderRequestValidator : AbstractValidator<AddReaderRequest>
     {
         public RegisterReaderRequestValidator()
@@ -58,7 +64,7 @@ public class AddReaderEndpoint : IEndpoint
                     .WithErrorCode(ReaderErrorCodes.NameTooLong);
         }
     }
-    
+
     public record AddReaderRequest(string Name, Guid Location);
 
     public record AddReaderResponse(Guid Id, string Name, Guid LocationId);
