@@ -1,4 +1,4 @@
-using Gringotts.Api.Features.Auth.Models;
+using Gringotts.Api.Features.Authentication.Models;
 using Gringotts.Api.Features.Log.Models;
 using Gringotts.Api.Features.Reader.Models;
 using Gringotts.Api.Features.Statistics.Models;
