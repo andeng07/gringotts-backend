@@ -24,7 +24,7 @@ public class UpdateLocationEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPut("readers/{id:guid}",
+        app.MapPut("locations/{id:guid}",
                 async ([FromBody] UpdateLocationRequest request, Guid id, AppDbContext dbContext) =>
                 await EndpointHelpers.UpdateEntity<Location, UpdateLocationResponse>(
                     id, dbContext,
