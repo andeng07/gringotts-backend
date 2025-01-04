@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Gringotts.Api.Features.Auth.Services;
+using Gringotts.Api.Features.Authentication.Services;
 using Gringotts.Api.Features.Reader.Models;
 using Gringotts.Api.Shared.Database;
 using Gringotts.Api.Shared.Endpoints;
@@ -48,7 +48,8 @@ public class AddReaderEndpoint : IEndpoint
             .WithEntityExistenceFilter<Location, AddReaderRequest>(request => request.Location)
             .WithAuthenticationFilter()
             .Produces<AddReaderResponse>(StatusCodes.Status201Created)
-            .Produces<Error>(StatusCodes.Status404NotFound);
+            .Produces<Error>(StatusCodes.Status404NotFound)
+            .WithGroupName("Readers");
     }
 
     public class RegisterReaderRequestValidator : AbstractValidator<AddReaderRequest>

@@ -1,12 +1,12 @@
 ﻿using FluentValidation;
-using Gringotts.Api.Features.Auth.Services;
+using Gringotts.Api.Features.Authentication.Services;
 using Gringotts.Api.Shared.Endpoints;
 using Gringotts.Api.Shared.Errors;
 using Gringotts.Api.Shared.Extensions;
 using Gringotts.Api.Shared.Results;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Gringotts.Api.Features.Auth.Endpoints;
+namespace Gringotts.Api.Features.Authentication.Endpoints;
 
 /// <summary>
 /// Endpoint for handling user login.

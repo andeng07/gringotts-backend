@@ -5,7 +5,7 @@ using Gringotts.Api.Shared.Errors;
 using Gringotts.Api.Shared.Results;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Gringotts.Api.Features.Auth.Services;
+namespace Gringotts.Api.Features.Authentication.Services;
 
 /// <summary>
 /// A service for generating and validating JSON Web Tokens (JWT).

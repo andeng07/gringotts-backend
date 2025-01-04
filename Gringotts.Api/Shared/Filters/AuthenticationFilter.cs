@@ -1,4 +1,4 @@
-﻿using Gringotts.Api.Features.Auth.Services;
+﻿using Gringotts.Api.Features.Authentication.Services;
 
 namespace Gringotts.Api.Shared.Filters;
 

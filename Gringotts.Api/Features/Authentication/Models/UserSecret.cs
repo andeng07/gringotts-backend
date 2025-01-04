@@ -1,6 +1,6 @@
 using Gringotts.Api.Shared.Models;
 
-namespace Gringotts.Api.Features.Auth.Models
+namespace Gringotts.Api.Features.Authentication.Models
 {
     public record UserSecret : IEntity
     {

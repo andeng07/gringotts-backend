@@ -22,7 +22,7 @@ namespace Gringotts.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Gringotts.Api.Features.Auth.Models.UserSecret", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.Authentication.Models.UserSecret", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -213,11 +213,11 @@ namespace Gringotts.Api.Migrations
                     b.ToTable("UserRoles");
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.Auth.Models.UserSecret", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.Authentication.Models.UserSecret", b =>
                 {
                     b.HasOne("Gringotts.Api.Features.User.Models.User", null)
                         .WithOne()
-                        .HasForeignKey("Gringotts.Api.Features.Auth.Models.UserSecret", "UserId")
+                        .HasForeignKey("Gringotts.Api.Features.Authentication.Models.UserSecret", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

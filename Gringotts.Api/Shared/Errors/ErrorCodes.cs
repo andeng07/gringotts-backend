@@ -2,14 +2,14 @@
 
 public static class AuthErrorCodes
 {
-    public const string CredentialsInvalid = "Auth.Credentials.Invalid";  
+    public const string CredentialsInvalid = "Authentication.Credentials.Invalid";  
     
     public const string EmailAlreadyRegistered = "Authentication.Register.EmailAlreadyRegistered";
     
-    public const string TokenNotFound = "Auth.Token.NotFound";
-    public const string InvalidTokenFormat = "Auth.Token.InvalidFormat";
+    public const string TokenNotFound = "Authentication.Token.NotFound";
+    public const string InvalidTokenFormat = "Authentication.Token.InvalidFormat";
     
-    public const string AccessDenied = "Auth.AccessDenied";
+    public const string AccessDenied = "Authentication.AccessDenied";
 }
 
 public static class ValidationErrorCodes
