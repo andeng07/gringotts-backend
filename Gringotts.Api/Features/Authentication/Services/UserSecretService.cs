@@ -1,48 +1,48 @@
 using Gringotts.Api.Features.Authentication.Models;
-using Gringotts.Api.Shared.Database;
+using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Results;
-using Gringotts.Api.Shared.Services;
+using Gringotts.Api.Shared.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gringotts.Api.Features.Authentication.Services;
 
-public class UserSecretService(AppDbContext dbContext, HashService hashService)
+public class UserSecretService(AppDbContext dbContext, HashingService hashingService)
 {
-    public async Task<TypedResult<UserSecret>> FindSecret(string email)
+    public async Task<TypedOperationResult<UserSecret>> FindSecret(string email)
     {
         var secret = await dbContext.UserSecrets.FirstOrDefaultAsync(secret => secret.Email == email);
 
         if (secret == null)
         {
-            return TypedResult<UserSecret>.Failure(new Error("Secrets.User.SecretNotFound",
-                "The secret with the email was not found.", Error.ErrorType.NotFound));
+            return TypedOperationResult<UserSecret>.Failure(new ErrorResponse("Secrets.User.SecretNotFound",
+                "The secret with the email was not found.", ErrorResponse.ErrorType.NotFound));
         }
 
-        return TypedResult<UserSecret>.Success(secret);
+        return TypedOperationResult<UserSecret>.Success(secret);
     }    
     
-    public async Task<TypedResult<UserSecret>> FindSecret(Guid id)
+    public async Task<TypedOperationResult<UserSecret>> FindSecret(Guid id)
     {
         var secret = await dbContext.UserSecrets.FirstOrDefaultAsync(secret => secret.UserId == id);
 
         if (secret == null)
         {
-            return TypedResult<UserSecret>.Failure(new Error("Secrets.User.SecretNotFound",
-                "The secret with the id was not found.", Error.ErrorType.NotFound));
+            return TypedOperationResult<UserSecret>.Failure(new ErrorResponse("Secrets.User.SecretNotFound",
+                "The secret with the id was not found.", ErrorResponse.ErrorType.NotFound));
         }
 
-        return TypedResult<UserSecret>.Success(secret);
+        return TypedOperationResult<UserSecret>.Success(secret);
     }
 
 
-    public async Task<TypedResult<UserSecret>> CreateSecretAsync(Guid userId, string email, string password)
+    public async Task<TypedOperationResult<UserSecret>> CreateSecretAsync(Guid userId, string email, string password)
     {
         var secret = new UserSecret
         {
             Id = Guid.NewGuid(),
             UserId = userId,
             Email = email,
-            Password = hashService.Hash(password)
+            Password = hashingService.Hash(password)
         };
 
         await dbContext.UserSecrets.AddAsync(secret);
@@ -52,40 +52,40 @@ public class UserSecretService(AppDbContext dbContext, HashService hashService)
         return secret;
     }
 
-    public async Task<Result> DeleteSecretAsync(Guid id)
+    public async Task<OperationResult> DeleteSecretAsync(Guid id)
     {
         var secret = await FindSecret(id);
 
         if (!secret.IsSuccess)
         {
-            return Result.Failure(secret.Errors.ToArray());
+            return OperationResult.Failure(secret.Errors.ToArray());
         }
         
         dbContext.UserSecrets.Remove(secret.Value!);
         await dbContext.SaveChangesAsync();
 
-        return Result.Success();
+        return OperationResult.Success();
     }
 
     public async Task<bool> HasSecretAsync(string email) =>
         await dbContext.UserSecrets.AnyAsync(secret => secret.Email == email);
 
-    public async Task<TypedResult<Guid>> MatchSecretAsync(string email, string passwordAttempt)
+    public async Task<TypedOperationResult<Guid>> MatchSecretAsync(string email, string passwordAttempt)
     {
         
         var secret = await FindSecret(email);
 
         if (!secret.IsSuccess)
         {
-            return TypedResult<Guid>.Failure(secret.Errors.ToArray());
+            return TypedOperationResult<Guid>.Failure(secret.Errors.ToArray());
         }
 
-        var result = hashService.Verify(passwordAttempt, secret.Value!.Password);
+        var result = hashingService.Verify(passwordAttempt, secret.Value!.Password);
 
         if (!result)
         {
-            return TypedResult<Guid>.Failure(new Error(
-                "Secrets.User.InvalidPassword", "The password is incorrect.", Error.ErrorType.AccessUnauthorized));
+            return TypedOperationResult<Guid>.Failure(new ErrorResponse(
+                "Secrets.User.InvalidPassword", "The password is incorrect.", ErrorResponse.ErrorType.AccessUnauthorized));
         }
 
         return secret.Value.UserId;

@@ -1,8 +1,6 @@
-﻿using Gringotts.Api.Shared.Database;
-using Gringotts.Api.Shared.Endpoints;
-using Gringotts.Api.Shared.Endpoints.Helper;
-using Gringotts.Api.Shared.Extensions;
+﻿using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Results;
+using Gringotts.Api.Shared.Utilities;
 
 namespace Gringotts.Api.Features.User.Endpoints;
 
@@ -33,7 +31,7 @@ public class GetUserEndpoint : IEndpoint
             .WithAuthenticationFilter()
             .WithEntityOwnershipFromRouteFilter("id")
             .Produces<GetUserResponse>()
-            .Produces<Error>(StatusCodes.Status404NotFound);
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
     }
 
     private record GetUserResponse(

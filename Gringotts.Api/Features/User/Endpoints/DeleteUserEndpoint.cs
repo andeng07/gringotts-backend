@@ -1,7 +1,5 @@
-﻿using Gringotts.Api.Shared.Database;
-using Gringotts.Api.Shared.Endpoints;
-using Gringotts.Api.Shared.Endpoints.Helper;
-using Gringotts.Api.Shared.Extensions;
+﻿using Gringotts.Api.Shared.Core;
+using Gringotts.Api.Shared.Utilities;
 
 namespace Gringotts.Api.Features.User.Endpoints;
 

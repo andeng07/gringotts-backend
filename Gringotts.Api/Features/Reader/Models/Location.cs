@@ -1,4 +1,4 @@
-using Gringotts.Api.Shared.Models;
+using Gringotts.Api.Shared.Core;
 
 namespace Gringotts.Api.Features.Reader.Models
 {

@@ -1,10 +1,8 @@
 ﻿using FluentValidation;
-using Gringotts.Api.Shared.Database;
-using Gringotts.Api.Shared.Endpoints;
-using Gringotts.Api.Shared.Endpoints.Helper;
+using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Errors;
-using Gringotts.Api.Shared.Extensions;
 using Gringotts.Api.Shared.Results;
+using Gringotts.Api.Shared.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gringotts.Api.Features.User.Endpoints;
@@ -46,7 +44,7 @@ public class UpdateUserEndpoint : IEndpoint
             .WithRequestValidation<UpdateUserRequest>()
             .WithAuthenticationFilter()
             .Produces<UpdateUserResponse>()
-            .Produces<Error>(StatusCodes.Status404NotFound);
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
     }
 
     public class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>

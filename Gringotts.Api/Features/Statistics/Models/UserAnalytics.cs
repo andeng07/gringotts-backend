@@ -2,9 +2,9 @@ using Gringotts.Api.Shared.Core;
 
 namespace Gringotts.Api.Features.Statistics.Models
 {
-    public record ReaderAnalytics : IEntity
+    public record UserAnalytics : IEntity
     {
         public required Guid Id { get; init; }
-        public required Guid ReaderId { get; set; }
+        public required Guid UserId { get; set; }
     }
 }

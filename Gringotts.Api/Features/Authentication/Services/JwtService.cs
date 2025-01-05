@@ -63,8 +63,8 @@ public class JwtService(IConfiguration configuration)
     /// </summary>
     /// <param name="token">The JWT token to be validated.</param>
     /// <param name="validateLifetime">A flag indicating whether to validate the token's expiration time.</param>
-    /// <returns>A <see cref="TypedResult{ClaimsPrincipal}"/> containing the validated claims principal or an error result if validation fails.</returns>
-    public TypedResult<ClaimsPrincipal> ValidateToken(string token, bool validateLifetime)
+    /// <returns>A <see cref="TypedOperationResult{TValue}"/> containing the validated claims principal or an error operationResult if validation fails.</returns>
+    public TypedOperationResult<ClaimsPrincipal> ValidateToken(string token, bool validateLifetime)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_secret);
@@ -86,8 +86,8 @@ public class JwtService(IConfiguration configuration)
         }
         catch (Exception e)
         {
-            var error = new Error("Jwt.Token.ValidationFailure", e.Message, Error.ErrorType.Failure);
-            return TypedResult<ClaimsPrincipal>.Failure(error);
+            var error = new ErrorResponse("Jwt.Token.ValidationFailure", e.Message, ErrorResponse.ErrorType.Failure);
+            return TypedOperationResult<ClaimsPrincipal>.Failure(error);
         }
     }
     
