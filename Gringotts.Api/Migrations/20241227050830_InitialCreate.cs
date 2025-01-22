@@ -25,7 +25,7 @@ namespace Gringotts.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Roles",
+                name: "LogRoles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -68,12 +68,12 @@ namespace Gringotts.Api.Migrations
                         name: "FK_Readers_Locations_LocationId",
                         column: x => x.LocationId,
                         principalTable: "Locations",
-                        principalColumn: "Id",
+                        principalColumn: "ReferenceId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserAnalytics",
+                name: "LogUserAnalytics",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -86,12 +86,12 @@ namespace Gringotts.Api.Migrations
                         name: "FK_UserAnalytics_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumn: "ReferenceId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserRoles",
+                name: "LogUserRoles",
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -102,14 +102,14 @@ namespace Gringotts.Api.Migrations
                     table.ForeignKey(
                         name: "FK_UserRoles_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "Roles",
-                        principalColumn: "Id",
+                        principalTable: "LogRoles",
+                        principalColumn: "ReferenceId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserRoles_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumn: "ReferenceId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -129,12 +129,12 @@ namespace Gringotts.Api.Migrations
                         name: "FK_UserSecrets_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumn: "ReferenceId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ReaderAnalytics",
+                name: "LogReaderAnalytics",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -147,7 +147,7 @@ namespace Gringotts.Api.Migrations
                         name: "FK_ReaderAnalytics_Readers_ReaderId",
                         column: x => x.ReaderId,
                         principalTable: "Readers",
-                        principalColumn: "Id",
+                        principalColumn: "ReferenceId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -166,7 +166,7 @@ namespace Gringotts.Api.Migrations
                         name: "FK_ReaderSecrets_Readers_ReaderId",
                         column: x => x.ReaderId,
                         principalTable: "Readers",
-                        principalColumn: "Id",
+                        principalColumn: "ReferenceId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -187,20 +187,20 @@ namespace Gringotts.Api.Migrations
                         name: "FK_Records_Readers_ReaderId",
                         column: x => x.ReaderId,
                         principalTable: "Readers",
-                        principalColumn: "Id",
+                        principalColumn: "ReferenceId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Records_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumn: "ReferenceId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ReaderAnalytics_ReaderId",
-                table: "ReaderAnalytics",
-                column: "ReaderId",
+                table: "LogReaderAnalytics",
+                column: "LogReaderId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -211,39 +211,39 @@ namespace Gringotts.Api.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ReaderSecrets_ReaderId",
                 table: "ReaderSecrets",
-                column: "ReaderId",
+                column: "LogReaderId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Records_ReaderId",
                 table: "Records",
-                column: "ReaderId");
+                column: "LogReaderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Records_UserId",
                 table: "Records",
-                column: "UserId");
+                column: "ManagementUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserAnalytics_UserId",
-                table: "UserAnalytics",
-                column: "UserId",
+                table: "LogUserAnalytics",
+                column: "ManagementUserId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoles_RoleId",
-                table: "UserRoles",
+                table: "LogUserRoles",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoles_UserId",
-                table: "UserRoles",
-                column: "UserId");
+                table: "LogUserRoles",
+                column: "ManagementUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserSecrets_UserId",
                 table: "UserSecrets",
-                column: "UserId",
+                column: "ManagementUserId",
                 unique: true);
         }
 
@@ -251,7 +251,7 @@ namespace Gringotts.Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ReaderAnalytics");
+                name: "LogReaderAnalytics");
 
             migrationBuilder.DropTable(
                 name: "ReaderSecrets");
@@ -260,10 +260,10 @@ namespace Gringotts.Api.Migrations
                 name: "Records");
 
             migrationBuilder.DropTable(
-                name: "UserAnalytics");
+                name: "LogUserAnalytics");
 
             migrationBuilder.DropTable(
-                name: "UserRoles");
+                name: "LogUserRoles");
 
             migrationBuilder.DropTable(
                 name: "UserSecrets");
@@ -272,7 +272,7 @@ namespace Gringotts.Api.Migrations
                 name: "Readers");
 
             migrationBuilder.DropTable(
-                name: "Roles");
+                name: "LogRoles");
 
             migrationBuilder.DropTable(
                 name: "Users");

@@ -1,7 +1,7 @@
 using FluentValidation;
-using Gringotts.Api.Features.Authentication.Services;
-using Gringotts.Api.Features.Reader.Services;
-using Gringotts.Api.Features.User.Services;
+using Gringotts.Api.Features.LogReader.Services;
+using Gringotts.Api.Features.ManagementAuthentication.Services;
+using Gringotts.Api.Features.ManagementUser.Services;
 using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Utilities;
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +14,11 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetValue<string>("Database:ConnectionString")));
 
-builder.Services.AddScoped<JwtService>();
+builder.Services.AddSingleton<JwtService>();
 builder.Services.AddSingleton<HashingService>();
 
-builder.Services.AddScoped<UserSecretService>();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ManagementUserSecretService>();
+builder.Services.AddScoped<ManagementUserService>();
 
 builder.Services.AddScoped<ReaderService>();
 builder.Services.AddScoped<LocationService>();

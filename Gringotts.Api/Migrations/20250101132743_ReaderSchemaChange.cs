@@ -62,14 +62,14 @@ namespace Gringotts.Api.Migrations
                         name: "FK_ReaderSecrets_Readers_ReaderId",
                         column: x => x.ReaderId,
                         principalTable: "Readers",
-                        principalColumn: "Id",
+                        principalColumn: "ReferenceId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ReaderSecrets_ReaderId",
                 table: "ReaderSecrets",
-                column: "ReaderId",
+                column: "LogReaderId",
                 unique: true);
         }
     }

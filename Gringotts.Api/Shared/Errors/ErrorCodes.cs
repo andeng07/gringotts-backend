@@ -2,20 +2,20 @@
 
 public static class AuthErrorCodes
 {
-    public const string CredentialsInvalid = "Authentication.Credentials.Invalid";  
+    public const string CredentialsInvalid = "ManagementAuthentication.Credentials.Invalid";  
     
-    public const string EmailAlreadyRegistered = "Authentication.Register.EmailAlreadyRegistered";
+    public const string EmailAlreadyRegistered = "ManagementAuthentication.Register.EmailAlreadyRegistered";
     
-    public const string TokenNotFound = "Authentication.Token.NotFound";
-    public const string InvalidTokenFormat = "Authentication.Token.InvalidFormat";
+    public const string TokenNotFound = "ManagementAuthentication.Token.NotFound";
+    public const string InvalidTokenFormat = "ManagementAuthentication.Token.InvalidFormat";
     
-    public const string AccessDenied = "Authentication.AccessDenied";
+    public const string AccessDenied = "ManagementAuthentication.AccessDenied";
 }
 
 public static class ValidationErrorCodes
 {
-    public const string EmailRequired = "Validation.Email.Required";
-    public const string InvalidEmailFormat = "Validation.Email.InvalidFormat"; 
+    public const string EmailRequired = "Validation.Username.Required";
+    public const string InvalidEmailFormat = "Validation.Username.InvalidFormat"; 
     
     public const string PasswordTooShort = "Validation.Password.TooShort";
     public const string PasswordRequired = "Validation.Password.Required";
@@ -32,10 +32,10 @@ public static class ValidationErrorCodes
 
 public static class ReaderErrorCodes
 {
-    public const string NameRequired = "Reader.Name.Required";
-    public const string NameTooLong = "Reader.Name.TooLong";
-    public const string LocationNotFound = "Reader.Location.NotFound";
-    public const string ReaderCreationFailed = "Reader.Creation.Failed";
+    public const string NameRequired = "LogReader.Name.Required";
+    public const string NameTooLong = "LogReader.Name.TooLong";
+    public const string LocationNotFound = "LogReader.Location.NotFound";
+    public const string ReaderCreationFailed = "LogReader.Creation.Failed";
 }
 
 public static class LocationErrorCodes
@@ -54,5 +54,5 @@ public static class LocationErrorCodes
 
 public static class UserErrorCodes
 {
-    public const string UserNotFound = "User.NotFound";
+    public const string UserNotFound = "LogUser.NotFound";
 }

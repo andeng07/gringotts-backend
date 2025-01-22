@@ -1,97 +1,94 @@
-using Gringotts.Api.Features.Authentication.Models;
 using Gringotts.Api.Features.Log.Models;
-using Gringotts.Api.Features.Reader.Models;
+using Gringotts.Api.Features.LogReader.Models;
+using Gringotts.Api.Features.LogUser.Models;
+using Gringotts.Api.Features.ManagementAuthentication.Models;
+using Gringotts.Api.Features.ManagementUser.Models;
 using Gringotts.Api.Features.Statistics.Models;
-using Gringotts.Api.Features.User.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gringotts.Api.Shared.Core
 {
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserSecret> UserSecrets { get; set; }
-        public DbSet<UserAnalytics> UserAnalytics { get; set; }
-        public DbSet<Role> Roles { get; set; }
-        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<ManagementUser> ManagementUsers { get; set; }
+        public DbSet<ManagementUserSecret> ManagementUserSecrets { get; set; }
 
-        public DbSet<Reader> Readers { get; set; }
-        public DbSet<ReaderAnalytics> ReaderAnalytics { get; set; }
+        public DbSet<Log> Logs { get; set; }
+        public DbSet<LogFallback> LogFallbacks { get; set; }
+        public DbSet<Session> Sessions { get; set; }
+
+        public DbSet<LogReader> Readers { get; set; }
         public DbSet<Location> Locations { get; set; }
 
-        public DbSet<Log> Records { get; set; } 
+        public DbSet<LogUser> LogUsers { get; set; }
+
+        public DbSet<LogReaderAnalytics> LogReaderAnalyticsSet { get; set; }
+        public DbSet<LogUserAnalytics> LogUserAnalyticsSet { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>()
-                .HasKey(entity => entity.Id);
+            modelBuilder.Entity<ManagementUser>().HasKey(m => m.Id);
 
-            modelBuilder.Entity<UserSecret>()
-                .HasKey(entity => entity.Id);
-
-            modelBuilder.Entity<UserSecret>()
-                .HasOne<User>()
+            modelBuilder.Entity<ManagementUserSecret>().HasKey(m => m.Id);
+            modelBuilder.Entity<ManagementUserSecret>()
+                .HasOne<ManagementUser>()
                 .WithOne()
-                .HasForeignKey<UserSecret>(entity => entity.UserId);
+                .HasForeignKey<ManagementUserSecret>(m => m.Id)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<UserAnalytics>()
-                .HasKey(entity => entity.Id);
+            modelBuilder.Entity<LogUser>().HasKey(m => m.Id);
 
-            modelBuilder.Entity<UserAnalytics>()
-                .HasOne<User>()
-                .WithOne()
-                .HasForeignKey<UserAnalytics>(entity => entity.UserId);
-
-            modelBuilder.Entity<Role>()
-                .HasKey(entity => entity.Id);
-
-            modelBuilder.Entity<UserRole>().HasNoKey();
-            
-            modelBuilder.Entity<UserRole>()
-                .HasOne<User>()
-                .WithMany()
-                .HasForeignKey(entity => entity.UserId);
-
-            modelBuilder.Entity<UserRole>()
-                .HasOne<Role>()
-                .WithMany()
-                .HasForeignKey(entity => entity.RoleId);
-
-            modelBuilder.Entity<Reader>()
-                .HasKey(entity => entity.Id);
-
-            modelBuilder.Entity<Reader>()
+            modelBuilder.Entity<Location>().HasKey(m => m.Id);
+            modelBuilder.Entity<LogReader>().HasKey(m => m.Id);
+            modelBuilder.Entity<LogReader>()
                 .HasOne<Location>()
                 .WithMany()
-                .HasForeignKey(entity => entity.LocationId);        
+                .HasForeignKey(x => x.LocationId)
+                .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<ReaderAnalytics>()
-                .HasKey(entity => entity.Id);
+            modelBuilder.Entity<Log>().HasKey(m => m.Id);
+            modelBuilder.Entity<Log>()
+                .HasOne<LogReader>()
+                .WithMany()
+                .HasForeignKey(x => x.LogReaderId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Log>()
+                .HasOne<LogUser>()
+                .WithMany()
+                .HasForeignKey(x => x.LogReaderId)
+                .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<ReaderAnalytics>()
-                .HasOne<Reader>()
+            modelBuilder.Entity<LogFallback>().HasKey(m => m.Id);
+            modelBuilder.Entity<LogFallback>()
+                .HasOne<LogReader>()
+                .WithMany()
+                .HasForeignKey(x => x.LogReaderId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Session>().HasKey(m => m.Id);
+            modelBuilder.Entity<Session>()
+                .HasOne<LogReader>()
+                .WithMany()
+                .HasForeignKey(x => x.LogReaderId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Session>()
+                .HasOne<LogUser>()
+                .WithMany()
+                .HasForeignKey(x => x.LogUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<LogReaderAnalytics>().HasKey(m => m.Id);
+            modelBuilder.Entity<LogReaderAnalytics>()
+                .HasOne<LogReader>()
                 .WithOne()
-                .HasForeignKey<ReaderAnalytics>(entity => entity.ReaderId);
+                .HasForeignKey<LogReaderAnalytics>(x => x.ReaderId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Location>()
-                .HasKey(entity => entity.Id);
-
-            modelBuilder.Entity<Log>()
-                .HasKey(entity => entity.Id);
-
-            modelBuilder.Entity<Log>()
-                .HasOne<Reader>()
-                .WithMany()
-                .HasForeignKey(entity => entity.ReaderId);
-
-            modelBuilder.Entity<Log>()
-                .HasOne<User>()
-                .WithMany()
-                .HasForeignKey(entity => entity.UserId);
-
-            modelBuilder.Entity<Log>()
-                .Property(entity => entity.ActionType)
-                .HasConversion<int>();
+            modelBuilder.Entity<LogUserAnalytics>()
+                .HasOne<LogUser>()
+                .WithOne()
+                .HasForeignKey<LogUserAnalytics>(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -22,13 +22,13 @@ namespace Gringotts.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Gringotts.Api.Features.Authentication.Models.UserSecret", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.ManagementAuthentication.Models.ManagementUserSecret", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ReferenceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -36,12 +36,12 @@ namespace Gringotts.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("ManagementUserId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.HasKey("ReferenceId");
 
-                    b.HasIndex("UserId")
+                    b.HasIndex("ManagementUserId")
                         .IsUnique();
 
                     b.ToTable("UserSecrets");
@@ -49,34 +49,34 @@ namespace Gringotts.Api.Migrations
 
             modelBuilder.Entity("Gringotts.Api.Features.Log.Models.Log", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ReferenceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("ActionType")
+                    b.Property<int>("LogType")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("ReaderId")
+                    b.Property<Guid>("LogReaderId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("Time")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("ManagementUserId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.HasKey("ReferenceId");
 
-                    b.HasIndex("ReaderId");
+                    b.HasIndex("LogReaderId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ManagementUserId");
 
                     b.ToTable("Records");
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.Reader.Models.Location", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.LogReader.Models.Location", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ReferenceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -87,14 +87,14 @@ namespace Gringotts.Api.Migrations
                     b.Property<string>("RoomName")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("ReferenceId");
 
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.Reader.Models.Reader", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.LogReader.Models.LogReader", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ReferenceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -109,50 +109,50 @@ namespace Gringotts.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("ReferenceId");
 
                     b.HasIndex("LocationId");
 
                     b.ToTable("Readers");
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.ReaderAnalytics", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.LogReaderAnalytics", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ReferenceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ReaderId")
+                    b.Property<Guid>("LogReaderId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.HasKey("ReferenceId");
 
-                    b.HasIndex("ReaderId")
+                    b.HasIndex("LogReaderId")
                         .IsUnique();
 
-                    b.ToTable("ReaderAnalytics");
+                    b.ToTable("LogReaderAnalytics");
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.UserAnalytics", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.LogUserAnalytics", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ReferenceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("ManagementUserId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.HasKey("ReferenceId");
 
-                    b.HasIndex("UserId")
+                    b.HasIndex("ManagementUserId")
                         .IsUnique();
 
-                    b.ToTable("UserAnalytics");
+                    b.ToTable("LogUserAnalytics");
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.User.Models.Role", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.LogUser.Models.LogRole", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ReferenceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -160,17 +160,17 @@ namespace Gringotts.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Permission")
+                    b.Property<int>("LogPermission")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.HasKey("ReferenceId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("LogRoles");
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.User.Models.User", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.LogUser.Models.LogUser", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ReferenceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -193,88 +193,88 @@ namespace Gringotts.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("ReferenceId");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.User.Models.UserRole", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.LogUser.Models.LogUserRole", b =>
                 {
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("ManagementUserId")
                         .HasColumnType("uuid");
 
                     b.HasIndex("RoleId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ManagementUserId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("LogUserRoles");
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.Authentication.Models.UserSecret", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.ManagementAuthentication.Models.ManagementUserSecret", b =>
                 {
-                    b.HasOne("Gringotts.Api.Features.User.Models.User", null)
+                    b.HasOne("Gringotts.Api.Features.LogUser.Models.LogUser", null)
                         .WithOne()
-                        .HasForeignKey("Gringotts.Api.Features.Authentication.Models.UserSecret", "UserId")
+                        .HasForeignKey("Gringotts.Api.Features.ManagementAuthentication.Models.ManagementUserSecret", "ManagementUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Gringotts.Api.Features.Log.Models.Log", b =>
                 {
-                    b.HasOne("Gringotts.Api.Features.Reader.Models.Reader", null)
+                    b.HasOne("Gringotts.Api.Features.LogReader.Models.LogReader", null)
                         .WithMany()
-                        .HasForeignKey("ReaderId")
+                        .HasForeignKey("LogReaderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Gringotts.Api.Features.User.Models.User", null)
+                    b.HasOne("Gringotts.Api.Features.LogUser.Models.LogUser", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ManagementUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.Reader.Models.Reader", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.LogReader.Models.LogReader", b =>
                 {
-                    b.HasOne("Gringotts.Api.Features.Reader.Models.Location", null)
+                    b.HasOne("Gringotts.Api.Features.LogReader.Models.Location", null)
                         .WithMany()
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.ReaderAnalytics", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.LogReaderAnalytics", b =>
                 {
-                    b.HasOne("Gringotts.Api.Features.Reader.Models.Reader", null)
+                    b.HasOne("Gringotts.Api.Features.LogReader.Models.LogReader", null)
                         .WithOne()
-                        .HasForeignKey("Gringotts.Api.Features.Statistics.Models.ReaderAnalytics", "ReaderId")
+                        .HasForeignKey("Gringotts.Api.Features.Statistics.Models.LogReaderAnalytics", "LogReaderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.UserAnalytics", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.LogUserAnalytics", b =>
                 {
-                    b.HasOne("Gringotts.Api.Features.User.Models.User", null)
+                    b.HasOne("Gringotts.Api.Features.LogUser.Models.LogUser", null)
                         .WithOne()
-                        .HasForeignKey("Gringotts.Api.Features.Statistics.Models.UserAnalytics", "UserId")
+                        .HasForeignKey("Gringotts.Api.Features.Statistics.Models.LogUserAnalytics", "ManagementUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.User.Models.UserRole", b =>
+            modelBuilder.Entity("Gringotts.Api.Features.LogUser.Models.LogUserRole", b =>
                 {
-                    b.HasOne("Gringotts.Api.Features.User.Models.Role", null)
+                    b.HasOne("Gringotts.Api.Features.LogUser.Models.LogRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Gringotts.Api.Features.User.Models.User", null)
+                    b.HasOne("Gringotts.Api.Features.LogUser.Models.LogUser", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ManagementUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
