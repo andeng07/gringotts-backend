@@ -1,4 +1,4 @@
-﻿using Gringotts.Api.Features.ManagementAuthentication.Services;
+﻿using Gringotts.Api.Features.ClientAuthentication.Services;
 
 namespace Gringotts.Api.Shared.Filters.Authentication;
 

@@ -2,14 +2,14 @@
 
 public static class AuthErrorCodes
 {
-    public const string CredentialsInvalid = "ManagementAuthentication.Credentials.Invalid";  
+    public const string CredentialsInvalid = "ClientAuthentication.Credentials.Invalid";  
     
-    public const string EmailAlreadyRegistered = "ManagementAuthentication.Register.EmailAlreadyRegistered";
+    public const string EmailAlreadyRegistered = "ClientAuthentication.Register.EmailAlreadyRegistered";
     
-    public const string TokenNotFound = "ManagementAuthentication.Token.NotFound";
-    public const string InvalidTokenFormat = "ManagementAuthentication.Token.InvalidFormat";
+    public const string TokenNotFound = "ClientAuthentication.Token.NotFound";
+    public const string InvalidTokenFormat = "ClientAuthentication.Token.InvalidFormat";
     
-    public const string AccessDenied = "ManagementAuthentication.AccessDenied";
+    public const string AccessDenied = "ClientAuthentication.AccessDenied";
 }
 
 public static class ValidationErrorCodes
@@ -32,10 +32,11 @@ public static class ValidationErrorCodes
 
 public static class ReaderErrorCodes
 {
-    public const string NameRequired = "LogReader.Name.Required";
-    public const string NameTooLong = "LogReader.Name.TooLong";
-    public const string LocationNotFound = "LogReader.Location.NotFound";
-    public const string ReaderCreationFailed = "LogReader.Creation.Failed";
+    public const string NotFound = "Reader.NotFound";
+    public const string NameRequired = "Reader.Name.Required";
+    public const string NameTooLong = "Reader.Name.TooLong";
+    public const string LocationNotFound = "Reader.Location.NotFound";
+    public const string ReaderCreationFailed = "Reader.Creation.Failed";
 }
 
 public static class LocationErrorCodes
@@ -54,5 +55,5 @@ public static class LocationErrorCodes
 
 public static class UserErrorCodes
 {
-    public const string UserNotFound = "LogUser.NotFound";
+    public const string UserNotFound = "User.NotFound";
 }

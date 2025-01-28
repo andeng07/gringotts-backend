@@ -1,7 +1,9 @@
 using FluentValidation;
-using Gringotts.Api.Features.LogReader.Services;
-using Gringotts.Api.Features.ManagementAuthentication.Services;
-using Gringotts.Api.Features.ManagementUser.Services;
+using Gringotts.Api.Features.Client.Services;
+using Gringotts.Api.Features.ClientAuthentication.Services;
+using Gringotts.Api.Features.Reader.Services;
+using Gringotts.Api.Features.Sessions.Services;
+using Gringotts.Api.Features.User.Services;
 using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Utilities;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +19,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddSingleton<HashingService>();
 
-builder.Services.AddScoped<ManagementUserSecretService>();
-builder.Services.AddScoped<ManagementUserService>();
+builder.Services.AddScoped<ClientSecretService>();
+builder.Services.AddScoped<ClientService>();
 
 builder.Services.AddScoped<ReaderService>();
 builder.Services.AddScoped<LocationService>();
+
+builder.Services.AddScoped<UserService>();
+
+builder.Services.AddScoped<SessionService>();
 
 if (builder.Environment.IsDevelopment())
 {
