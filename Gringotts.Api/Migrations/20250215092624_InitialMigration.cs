@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Gringotts.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,6 +16,7 @@ namespace Gringotts.Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     FirstName = table.Column<string>(type: "text", nullable: false),
                     MiddleName = table.Column<string>(type: "text", nullable: true),
                     LastName = table.Column<string>(type: "text", nullable: false)
@@ -30,6 +31,7 @@ namespace Gringotts.Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -42,6 +44,7 @@ namespace Gringotts.Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     BuildingName = table.Column<string>(type: "text", nullable: false),
                     RoomName = table.Column<string>(type: "text", nullable: true)
                 },
@@ -55,7 +58,8 @@ namespace Gringotts.Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ManagementUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uuid", nullable: false),
                     Username = table.Column<string>(type: "text", nullable: false),
                     Password = table.Column<string>(type: "text", nullable: false)
                 },
@@ -63,8 +67,8 @@ namespace Gringotts.Api.Migrations
                 {
                     table.PrimaryKey("PK_ClientSecrets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClientSecrets_Clients_ManagementUserId",
-                        column: x => x.ManagementUserId,
+                        name: "FK_ClientSecrets_Clients_ClientId",
+                        column: x => x.ClientId,
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -75,6 +79,7 @@ namespace Gringotts.Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CardId = table.Column<string>(type: "text", nullable: false),
                     SchoolId = table.Column<string>(type: "text", nullable: false),
                     FirstName = table.Column<string>(type: "text", nullable: false),
@@ -82,7 +87,7 @@ namespace Gringotts.Api.Migrations
                     LastName = table.Column<string>(type: "text", nullable: false),
                     Affiliation = table.Column<byte>(type: "smallint", nullable: false),
                     Sex = table.Column<byte>(type: "smallint", nullable: false),
-                    DepartmentId = table.Column<Guid>(type: "uuid", nullable: false)
+                    DepartmentId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -100,9 +105,9 @@ namespace Gringotts.Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    LocationId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AccessToken = table.Column<string>(type: "text", nullable: false)
+                    LocationId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -116,28 +121,11 @@ namespace Gringotts.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LogUserAnalyticsSet",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LogUserAnalyticsSet", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_LogUserAnalyticsSet_LogUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "LogUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ActiveSessions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LogUserId = table.Column<Guid>(type: "uuid", nullable: false),
                     LogReaderId = table.Column<Guid>(type: "uuid", nullable: false),
                     SessionId = table.Column<Guid>(type: "uuid", nullable: false)
@@ -160,45 +148,28 @@ namespace Gringotts.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LogReaderAnalyticsSet",
+                name: "InteractionLogs",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ReaderId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LogReaderAnalyticsSet", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_LogReaderAnalyticsSet_Readers_ReaderId",
-                        column: x => x.ReaderId,
-                        principalTable: "Readers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SessionLogs",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TransactionId = table.Column<string>(type: "text", nullable: false),
                     LogReaderId = table.Column<Guid>(type: "uuid", nullable: false),
                     LogUserId = table.Column<Guid>(type: "uuid", nullable: true),
                     CardId = table.Column<string>(type: "text", nullable: false),
                     DateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Type = table.Column<byte>(type: "smallint", nullable: false)
+                    InteractionType = table.Column<byte>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SessionLogs", x => x.Id);
+                    table.PrimaryKey("PK_InteractionLogs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SessionLogs_LogUsers_LogUserId",
+                        name: "FK_InteractionLogs_LogUsers_LogUserId",
                         column: x => x.LogUserId,
                         principalTable: "LogUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_SessionLogs_Readers_LogReaderId",
+                        name: "FK_InteractionLogs_Readers_LogReaderId",
                         column: x => x.LogReaderId,
                         principalTable: "Readers",
                         principalColumn: "Id",
@@ -206,10 +177,11 @@ namespace Gringotts.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Sessions",
+                name: "Interactions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LogReaderId = table.Column<Guid>(type: "uuid", nullable: false),
                     LogUserId = table.Column<Guid>(type: "uuid", nullable: false),
                     StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -243,9 +215,9 @@ namespace Gringotts.Api.Migrations
                 column: "LogUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClientSecrets_ManagementUserId",
+                name: "IX_ClientSecrets_ClientId",
                 table: "ClientSecrets",
-                column: "ManagementUserId",
+                column: "ClientId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -255,16 +227,14 @@ namespace Gringotts.Api.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_LogReaderAnalyticsSet_ReaderId",
-                table: "LogReaderAnalyticsSet",
-                column: "ReaderId",
-                unique: true);
+                name: "IX_InteractionLogs_LogReaderId",
+                table: "InteractionLogs",
+                column: "LogReaderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LogUserAnalyticsSet_UserId",
-                table: "LogUserAnalyticsSet",
-                column: "UserId",
-                unique: true);
+                name: "IX_InteractionLogs_LogUserId",
+                table: "InteractionLogs",
+                column: "LogUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LogUsers_DepartmentId",
@@ -277,23 +247,13 @@ namespace Gringotts.Api.Migrations
                 column: "LocationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SessionLogs_LogReaderId",
-                table: "SessionLogs",
-                column: "LogReaderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SessionLogs_LogUserId",
-                table: "SessionLogs",
-                column: "LogUserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Sessions_LogReaderId",
-                table: "Sessions",
+                table: "Interactions",
                 column: "LogReaderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Sessions_LogUserId",
-                table: "Sessions",
+                table: "Interactions",
                 column: "LogUserId");
         }
 
@@ -307,16 +267,10 @@ namespace Gringotts.Api.Migrations
                 name: "ClientSecrets");
 
             migrationBuilder.DropTable(
-                name: "LogReaderAnalyticsSet");
+                name: "InteractionLogs");
 
             migrationBuilder.DropTable(
-                name: "LogUserAnalyticsSet");
-
-            migrationBuilder.DropTable(
-                name: "SessionLogs");
-
-            migrationBuilder.DropTable(
-                name: "Sessions");
+                name: "Interactions");
 
             migrationBuilder.DropTable(
                 name: "Clients");

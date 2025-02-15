@@ -8,19 +8,18 @@ public class UserService(AppDbContext dbContext)
 {
     public async Task<TypedOperationResult<User.Models.User>> GetLogUserByCardIdAsync(string cardId)
     {
-        var user = await dbContext.Set<User.Models.User>().FirstOrDefaultAsync(x => x.CardId == cardId);
+        var logUser = await dbContext.Set<User.Models.User>().FirstOrDefaultAsync(x => x.CardId == cardId);
 
-        if (user == null)
+        if (logUser is null)
         {
-            var error = new ErrorResponse(
-                "", // TODO
-                "", // TODO
+            return new ErrorResponse(
+                "USER_NOT_FOUND", 
+                $"No user found with Card ID: {cardId}", 
                 ErrorResponse.ErrorType.NotFound
             );
-
-            return error;
         }
 
-        return user;
+        return logUser;
     }
+
 }

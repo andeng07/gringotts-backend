@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Gringotts.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250127135024_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250215092624_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,6 +30,9 @@ namespace Gringotts.Api.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -53,8 +56,11 @@ namespace Gringotts.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ManagementUserId")
+                    b.Property<Guid>("ClientId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -66,7 +72,7 @@ namespace Gringotts.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ManagementUserId")
+                    b.HasIndex("ClientId")
                         .IsUnique();
 
                     b.HasIndex("Username")
@@ -85,6 +91,9 @@ namespace Gringotts.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("RoomName")
                         .HasColumnType("text");
 
@@ -99,11 +108,10 @@ namespace Gringotts.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("AccessToken")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("LocationId")
+                    b.Property<Guid?>("LocationId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -123,6 +131,9 @@ namespace Gringotts.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("LogReaderId")
                         .HasColumnType("uuid");
 
@@ -141,11 +152,52 @@ namespace Gringotts.Api.Migrations
                     b.ToTable("ActiveSessions");
                 });
 
+            modelBuilder.Entity("Gringotts.Api.Features.Sessions.Models.InteractionLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CardId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte>("InteractionType")
+                        .HasColumnType("smallint");
+
+                    b.Property<Guid>("LogReaderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("LogUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TransactionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LogReaderId");
+
+                    b.HasIndex("LogUserId");
+
+                    b.ToTable("InteractionLogs");
+                });
+
             modelBuilder.Entity("Gringotts.Api.Features.Sessions.Models.Session", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("timestamp with time zone");
@@ -168,80 +220,14 @@ namespace Gringotts.Api.Migrations
                     b.ToTable("Sessions");
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.Sessions.Models.SessionLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("CardId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("LogReaderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("LogUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("TransactionId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<byte>("Type")
-                        .HasColumnType("smallint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LogReaderId");
-
-                    b.HasIndex("LogUserId");
-
-                    b.ToTable("SessionLogs");
-                });
-
-            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.ReaderAnalytics", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ReaderId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReaderId")
-                        .IsUnique();
-
-                    b.ToTable("LogReaderAnalyticsSet");
-                });
-
-            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.UserAnalytics", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("LogUserAnalyticsSet");
-                });
-
             modelBuilder.Entity("Gringotts.Api.Features.User.Models.Department", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -265,7 +251,10 @@ namespace Gringotts.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("DepartmentId")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DepartmentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("FirstName")
@@ -297,7 +286,7 @@ namespace Gringotts.Api.Migrations
                 {
                     b.HasOne("Gringotts.Api.Features.Client.Models.Client", null)
                         .WithOne()
-                        .HasForeignKey("Gringotts.Api.Features.ClientAuthentication.Models.ClientSecret", "ManagementUserId")
+                        .HasForeignKey("Gringotts.Api.Features.ClientAuthentication.Models.ClientSecret", "ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -307,8 +296,7 @@ namespace Gringotts.Api.Migrations
                     b.HasOne("Gringotts.Api.Features.Reader.Models.Location", null)
                         .WithMany()
                         .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("Gringotts.Api.Features.Sessions.Models.ActiveSession", b =>
@@ -326,6 +314,19 @@ namespace Gringotts.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Gringotts.Api.Features.Sessions.Models.InteractionLog", b =>
+                {
+                    b.HasOne("Gringotts.Api.Features.Reader.Models.Reader", null)
+                        .WithMany()
+                        .HasForeignKey("LogReaderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Gringotts.Api.Features.User.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("LogUserId");
+                });
+
             modelBuilder.Entity("Gringotts.Api.Features.Sessions.Models.Session", b =>
                 {
                     b.HasOne("Gringotts.Api.Features.Reader.Models.Reader", null)
@@ -341,44 +342,12 @@ namespace Gringotts.Api.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Gringotts.Api.Features.Sessions.Models.SessionLog", b =>
-                {
-                    b.HasOne("Gringotts.Api.Features.Reader.Models.Reader", null)
-                        .WithMany()
-                        .HasForeignKey("LogReaderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Gringotts.Api.Features.User.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("LogUserId");
-                });
-
-            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.ReaderAnalytics", b =>
-                {
-                    b.HasOne("Gringotts.Api.Features.Reader.Models.Reader", null)
-                        .WithOne()
-                        .HasForeignKey("Gringotts.Api.Features.Statistics.Models.ReaderAnalytics", "ReaderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Gringotts.Api.Features.Statistics.Models.UserAnalytics", b =>
-                {
-                    b.HasOne("Gringotts.Api.Features.User.Models.User", null)
-                        .WithOne()
-                        .HasForeignKey("Gringotts.Api.Features.Statistics.Models.UserAnalytics", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Gringotts.Api.Features.User.Models.User", b =>
                 {
                     b.HasOne("Gringotts.Api.Features.User.Models.Department", null)
                         .WithMany()
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 #pragma warning restore 612, 618
         }
