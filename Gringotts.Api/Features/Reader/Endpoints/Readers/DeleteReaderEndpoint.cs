@@ -33,5 +33,5 @@ public class DeleteReaderEndpoint : IEndpoint
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
     }
 
-    public record DeleteReaderResponse(Guid Id, string ReaderName, Guid Location);
+    public record DeleteReaderResponse(Guid Id, string ReaderName, Guid? Location);
 }

@@ -1,6 +1,9 @@
-﻿using Gringotts.Api.Shared.Core;
+﻿using System.Linq.Expressions;
+using Gringotts.Api.Shared.Core;
+using Gringotts.Api.Shared.Pagination;
 using Gringotts.Api.Shared.Results;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Gringotts.Api.Shared.Utilities;
 
@@ -9,45 +12,21 @@ namespace Gringotts.Api.Shared.Utilities;
 /// </summary>
 public static class EndpointHelpers
 {
-    /// <summary>
-    /// Creates a new entity in the database.
-    /// </summary>
-    /// <typeparam name="TEntity">The entity type.</typeparam>
-    /// <typeparam name="TResponse">The response type.</typeparam>
-    /// <param name="entity">The entity to create.</param>
-    /// <param name="dbContext">The database context.</param>
-    /// <param name="uri">A function to generate the URI of the created entity.</param>
-    /// <param name="responseMapper">Optional function to map the entity to a response type.</param>
-    /// <returns>A result with HTTP status 201 Created, the URI of the new resource, and the response payload.</returns>
     public static async Task<IResult> CreateEntity<TEntity, TResponse>(
         TEntity entity,
-        AppDbContext dbContext, 
+        AppDbContext dbContext,
         Func<TEntity, string> uri,
         Func<TEntity, TResponse>? responseMapper = null
     ) where TEntity : class, IEntity
     {
         var dbSet = dbContext.Set<TEntity>();
-        
         await dbSet.AddAsync(entity);
         await dbContext.SaveChangesAsync();
-        
-        var response = responseMapper != null ? responseMapper(entity) : (object) entity;
-        
-        var uriString = uri(entity);
-        
-        return Microsoft.AspNetCore.Http.Results.Created(uriString, response);
+
+        var response = responseMapper != null ? responseMapper(entity) : (object)entity;
+        return Microsoft.AspNetCore.Http.Results.Created(uri(entity), response);
     }
 
-    
-    /// <summary>
-    /// Retrieves a single entity by its GUID.
-    /// </summary>
-    /// <typeparam name="TEntity">The entity type.</typeparam>
-    /// <typeparam name="TResponse">The response type.</typeparam>
-    /// <param name="guid">The unique identifier of the entity.</param>
-    /// <param name="dbContext">The database context.</param>
-    /// <param name="responseMapper">Optional function to map the entity to a response type.</param>
-    /// <returns>A result with the entity or an error if not found.</returns>
     public static async Task<IResult> GetEntity<TEntity, TResponse>(
         Guid guid,
         AppDbContext dbContext,
@@ -55,154 +34,166 @@ public static class EndpointHelpers
     ) where TEntity : class, IEntity
     {
         return await PerformEntityOperation(
-            async () => await dbContext.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == guid),
+            async () => await dbContext.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(entity => entity.Id == guid),
             responseMapper: responseMapper
         );
     }
 
-    /// <summary>
-    /// Retrieves a single entity based on a query defined by the entityQuery function.
-    /// </summary>
-    /// <typeparam name="TEntity">The entity type.</typeparam>
-    /// <typeparam name="TRequest">The request type for the query.</typeparam>
-    /// <typeparam name="TResponse">The response type.</typeparam>
-    /// <param name="request">The query parameters.</param>
-    /// <param name="dbContext">The database context.</param>
-    /// <param name="entityQuery">A function to define the query logic.</param>
-    /// <param name="responseMapper">Optional function to map the entity to a response type.</param>
-    /// <returns>A result with the entity or an error if not found.</returns>
-    public static async Task<IResult> GetEntityByQuery<TEntity, TRequest, TResponse>(
-        TRequest request,
+    public static async Task<IResult> GetEntityByQuery<TEntity, TResponse>(
         AppDbContext dbContext,
-        Func<TEntity, TRequest, bool> entityQuery,
+        Expression<Func<TEntity, bool>> entityQuery,
         Func<TEntity, TResponse>? responseMapper = null
     ) where TEntity : class, IEntity
     {
         return await PerformEntityOperation(
-            async () => await dbContext.Set<TEntity>().FirstOrDefaultAsync(x => entityQuery(x, request)),
+            async () => await dbContext.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(entityQuery),
             responseMapper: responseMapper
         );
     }
 
-    /// <summary>
-    /// Deletes a single entity identified by its GUID.
-    /// </summary>
-    /// <typeparam name="TEntity">The entity type.</typeparam>
-    /// <typeparam name="TResponse">The response type.</typeparam>
-    /// <param name="guid">The unique identifier of the entity.</param>
-    /// <param name="dbContext">The database context.</param>
-    /// <param name="responseMapper">Optional function to map the entity to a response type.</param>
-    /// <returns>A result indicating success or failure.</returns>
     public static async Task<IResult> DeleteEntity<TEntity, TResponse>(
         Guid guid,
         AppDbContext dbContext,
         Func<TEntity, TResponse>? responseMapper = null
     ) where TEntity : class, IEntity
     {
-        return await PerformEntityOperation(
-            async () => await dbContext.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == guid),
-            entityOperation: entity =>
-            {
-                dbContext.Set<TEntity>().Remove(entity);
-                dbContext.SaveChanges();
-            },
+        var delete = await PerformEntityOperation(
+            async () => await dbContext.Set<TEntity>().FindAsync(guid),
+            entityOperation: entity => dbContext.Set<TEntity>().Remove(entity),
             responseMapper: responseMapper
         );
+
+        await dbContext.SaveChangesAsync();
+        
+        return delete;
     }
 
-    /// <summary>
-    /// Deletes a single entity based on a query defined by the entityQuery function.
-    /// </summary>
-    /// <typeparam name="TEntity">The entity type.</typeparam>
-    /// <typeparam name="TRequest">The request type for the query.</typeparam>
-    /// <typeparam name="TResponse">The response type.</typeparam>
-    /// <param name="request">The query parameters.</param>
-    /// <param name="dbContext">The database context.</param>
-    /// <param name="entityQuery">A function to define the query logic.</param>
-    /// <param name="responseMapper">Optional function to map the entity to a response type.</param>
-    /// <returns>A result indicating success or failure.</returns>
-    public static async Task<IResult> DeleteEntityByQuery<TEntity, TRequest, TResponse>(
-        TRequest request,
+    public static async Task<IResult> DeleteEntityByQuery<TEntity, TResponse>(
         AppDbContext dbContext,
-        Func<TEntity, TRequest, bool> entityQuery,
+        Expression<Func<TEntity, bool>> entityQuery,
         Func<TEntity, TResponse>? responseMapper = null
     ) where TEntity : class, IEntity
     {
-        return await PerformEntityOperation(
-            async () => await dbContext.Set<TEntity>().FirstOrDefaultAsync(x => entityQuery(x, request)),
-            entityOperation: entity =>
-            {
-                dbContext.Set<TEntity>().Remove(entity);
-                dbContext.SaveChanges();
-            },
+        var delete = await PerformEntityOperation(
+            async () => await dbContext.Set<TEntity>().FirstOrDefaultAsync(entityQuery),
+            entityOperation: entity => dbContext.Set<TEntity>().Remove(entity),
             responseMapper: responseMapper
         );
+        
+        await dbContext.SaveChangesAsync();
+        
+        return delete;
     }
 
-    /// <summary>
-    /// Updates a single entity based on the entity's ID.
-    /// </summary>
-    /// <typeparam name="TEntity">The entity type.</typeparam>
-    /// <typeparam name="TResponse">The response type.</typeparam>
-    /// <param name="id">The ID of the entity to update.</param>
-    /// <param name="dbContext">The database context.</param>
-    /// <param name="updateEntity">A function to update the entity.</param>
-    /// <param name="responseMapper">Optional function to map the entity to a response type.</param>
-    /// <returns>A result with the updated entity or an error if not found.</returns>
     public static async Task<IResult> UpdateEntity<TEntity, TResponse>(
-        Guid id, 
+        Guid guid,
         AppDbContext dbContext,
-        Action<TEntity> updateEntity, 
-        Func<TEntity, TResponse>? responseMapper = null
-    ) where TEntity : class, IEntity
-    {
-        return await PerformEntityOperation(
-            async () => await dbContext.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id),
-            entityOperation: entity =>
-            {
-                updateEntity(entity);
-                dbContext.SaveChanges();
-            },
-            responseMapper: responseMapper
-        );
-    }
-
-    /// <summary>
-    /// Updates a single entity based on a query defined by the entityQuery function.
-    /// </summary>
-    /// <typeparam name="TEntity">The entity type.</typeparam>
-    /// <typeparam name="TRequest">The request type for the query.</typeparam>
-    /// <typeparam name="TResponse">The response type.</typeparam>
-    /// <param name="request">The query parameters.</param>
-    /// <param name="dbContext">The database context.</param>
-    /// <param name="entityQuery">A function to define the query logic.</param>
-    /// <param name="updateEntity">A function to update the entity.</param>
-    /// <param name="responseMapper">Optional function to map the entity to a response type.</param>
-    /// <returns>A result with the updated entity or an error if not found.</returns>
-    public static async Task<IResult> UpdateEntityByQuery<TEntity, TRequest, TResponse>(
-        TRequest request,
-        AppDbContext dbContext,
-        Func<TEntity, TRequest, bool> entityQuery,
         Action<TEntity> updateEntity,
         Func<TEntity, TResponse>? responseMapper = null
     ) where TEntity : class, IEntity
     {
-        return await PerformEntityOperation(
-            async () => await dbContext.Set<TEntity>().FirstOrDefaultAsync(x => entityQuery(x, request)),
+        var update = await PerformEntityOperation(
+            async () => await dbContext.Set<TEntity>().FindAsync(guid),
             entityOperation: updateEntity,
+            responseMapper: responseMapper
+        );
+        
+        await dbContext.SaveChangesAsync();
+
+        return update;
+    }
+
+    public static async Task<IResult> UpdateEntityByQuery<TEntity, TResponse>(
+        AppDbContext dbContext,
+        Expression<Func<TEntity, bool>> entityQuery,
+        Action<TEntity> updateEntity,
+        Func<TEntity, TResponse>? responseMapper = null
+    ) where TEntity : class, IEntity
+    {
+        var update = await PerformEntityOperation(
+            async () => await dbContext.Set<TEntity>().FirstOrDefaultAsync(entityQuery),
+            entityOperation: updateEntity,
+            responseMapper: responseMapper
+        );
+
+        await dbContext.SaveChangesAsync();
+
+        return update;
+    }
+
+    public static async Task<IResult> GetEntities<TEntity, TResponse>(
+        AppDbContext dbContext,
+        int page,
+        int pageSize,
+        Expression<Func<TEntity, bool>>? entityQuery = null,
+        Func<TEntity, TResponse>? responseMapper = null
+    ) where TEntity : class, IEntity where TResponse : class
+    {
+        var query = dbContext.Set<TEntity>().AsNoTracking();
+
+        // Apply the entity-specific query filter if provided by the caller
+        if (entityQuery != null)
+        {
+            query = query.Where(entityQuery);
+        }
+
+        // Get total count before pagination
+        var totalCount = await query.CountAsync();
+
+        // Apply pagination (skip, take) and response mapping
+        var entities = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var result = entities.Select(entity =>
+            responseMapper != null ? responseMapper(entity) : (TResponse)(object)entity
+        );
+
+        return Microsoft.AspNetCore.Http.Results.Ok(new PaginatedResult<TResponse>(page, pageSize, totalCount, result));
+    }
+
+    public static async Task<IResult> DeleteEntities<TEntity, TResponse>(
+        AppDbContext dbContext,
+        Expression<Func<TEntity, bool>> entityQuery,
+        Func<IEnumerable<TEntity>, IEnumerable<TResponse>>? responseMapper = null
+    ) where TEntity : class, IEntity
+    {
+        var delete = await PerformBulkEntityOperation(
+            async () =>
+            {
+                var entities = dbContext.Set<TEntity>().Where(entityQuery);
+                dbContext.Set<TEntity>().RemoveRange(entities);
+                await dbContext.SaveChangesAsync();
+                return entities;
+            },
+            responseMapper: responseMapper
+        );
+        
+        return delete;
+    }
+
+    public static async Task<IResult> UpdateEntities<TEntity, TResponse>(
+        AppDbContext dbContext,
+        Expression<Func<TEntity, bool>> entityQuery,
+        Expression<Func<SetPropertyCalls<TEntity>, SetPropertyCalls<TEntity>>> updateFunction,
+        Func<IEnumerable<TEntity>, IEnumerable<TResponse>>? responseMapper = null
+    ) where TEntity : class, IEntity
+    {
+        return await PerformBulkEntityOperation(
+            async () =>
+            {
+                var entities = dbContext.Set<TEntity>().Where(entityQuery);
+
+                await entities.ExecuteUpdateAsync(updateFunction);
+
+                return entities;
+            },
             responseMapper: responseMapper
         );
     }
 
-    /// <summary>
-    /// Helper method to perform an operation on a single entity.
-    /// </summary>
-    /// <typeparam name="TEntity">The entity type.</typeparam>
-    /// <typeparam name="TResponse">The response type.</typeparam>
-    /// <param name="entityFinder">A function to find the entity.</param>
-    /// <param name="entityOperation">Optional function to perform an operation on the entity (e.g., update or delete).</param>
-    /// <param name="responseMapper">Optional function to map the entity to a response type.</param>
-    /// <returns>A result with the entity or an error if not found.</returns>
     private static async Task<IResult> PerformEntityOperation<TEntity, TResponse>(
         Func<Task<TEntity?>> entityFinder,
         Action<TEntity>? entityOperation = null,
@@ -210,7 +201,6 @@ public static class EndpointHelpers
     ) where TEntity : class, IEntity
     {
         var entity = await entityFinder();
-
         if (entity == null)
         {
             var error = new ErrorResponse(
@@ -218,148 +208,24 @@ public static class EndpointHelpers
                 $"{typeof(TEntity).Name} not found",
                 ErrorResponse.ErrorType.NotFound
             );
-
             return Microsoft.AspNetCore.Http.Results.NotFound(error);
         }
 
         entityOperation?.Invoke(entity);
-
         var response = responseMapper != null ? responseMapper(entity) : (TResponse)(object)entity;
-
         return Microsoft.AspNetCore.Http.Results.Ok(response);
     }
 
-    /// <summary>
-    /// Retrieves multiple entities based on a query defined by the entityQuery function.
-    /// </summary>
-    /// <typeparam name="TEntity">The entity type.</typeparam>
-    /// <typeparam name="TRequest">The request type for the query.</typeparam>
-    /// <typeparam name="TResponse">The response type.</typeparam>
-    /// <param name="request">The query parameters.</param>
-    /// <param name="dbContext">The database context.</param>
-    /// <param name="entityQuery">A function to define the query logic.</param>
-    /// <param name="responseMapper">Optional function to map the entities to a response type.</param>
-    /// <returns>A result with the entities or an error if none found.</returns>
-    public static async Task<IResult> GetEntities<TEntity, TRequest, TResponse>(
-        TRequest request,
-        AppDbContext dbContext,
-        Func<TEntity, TRequest, bool> entityQuery,
-        Func<IEnumerable<TEntity>, IEnumerable<TResponse>>? responseMapper = null
-    ) where TEntity : class, IEntity
-    {
-        return await PerformBulkEntityOperation(
-            () => Task.FromResult<IEnumerable<TEntity>>(dbContext.Set<TEntity>().Where(x => entityQuery(x, request))),
-            responseMapper: responseMapper
-        );
-    }
-
-    /// <summary>
-    /// Deletes multiple entities based on a query defined by the entityQuery function.
-    /// </summary>
-    /// <typeparam name="TEntity">The entity type.</typeparam>
-    /// <typeparam name="TRequest">The request type for the query.</typeparam>
-    /// <typeparam name="TResponse">The response type.</typeparam>
-    /// <param name="request">The query parameters.</param>
-    /// <param name="dbContext">The database context.</param>
-    /// <param name="entityQuery">A function to define the query logic.</param>
-    /// <param name="responseMapper">Optional function to map the entities to a response type.</param>
-    /// <returns>A result indicating success or failure.</returns>
-    public static async Task<IResult> DeleteEntities<TEntity, TRequest, TResponse>(
-        TRequest request,
-        AppDbContext dbContext,
-        Func<TEntity, TRequest, bool> entityQuery,
-        Func<IEnumerable<TEntity>, IEnumerable<TResponse>>? responseMapper = null
-    ) where TEntity : class, IEntity
-    {
-        return await PerformBulkEntityOperation(
-            async () =>
-            {
-                var entities = dbContext.Set<TEntity>().Where(x => entityQuery(x, request)).ToList();
-                dbContext.Set<TEntity>().RemoveRange(entities);
-                await dbContext.SaveChangesAsync();
-                return entities;
-            },
-            responseMapper: responseMapper
-        );
-    }
-
-    /// <summary>
-    /// Updates multiple entities based on a query defined by the entityQuery function.
-    /// </summary>
-    /// <typeparam name="TEntity">The entity type.</typeparam>
-    /// <typeparam name="TRequest">The request type for the query.</typeparam>
-    /// <typeparam name="TResponse">The response type.</typeparam>
-    /// <param name="request">The query parameters.</param>
-    /// <param name="dbContext">The database context.</param>
-    /// <param name="entityQuery">A function to define the query logic.</param>
-    /// <param name="updateEntity">A function to update the entities.</param>
-    /// <param name="responseMapper">Optional function to map the entities to a response type.</param>
-    /// <returns>A result with the updated entities or an error if none found.</returns>
-    public static async Task<IResult> UpdateEntities<TEntity, TRequest, TResponse>(
-        TRequest request,
-        AppDbContext dbContext,
-        Func<TEntity, TRequest, bool> entityQuery,
-        Action<TEntity> updateEntity,
-        Func<IEnumerable<TEntity>, IEnumerable<TResponse>>? responseMapper = null
-    ) where TEntity : class, IEntity
-    {
-        return await PerformBulkEntityOperation(
-            async () =>
-            {
-                var entities = dbContext.Set<TEntity>().Where(x => entityQuery(x, request)).ToList();
-                foreach (var entity in entities)
-                {
-                    updateEntity(entity);
-                }
-
-                dbContext.Set<TEntity>().UpdateRange(entities);
-                await dbContext.SaveChangesAsync();
-                return entities;
-            },
-            responseMapper: responseMapper
-        );
-    }
-
-    /// <summary>
-    /// Performs an operation on a collection of entities retrieved from a data source.
-    /// This method is intended for use with bulk operations such as retrieving, updating, or deleting multiple entities.
-    /// It handles the retrieval of entities, applies an optional response mapping, and returns a result indicating success or failure.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of entity being operated on. Must implement the <see cref="IEntity"/> interface.</typeparam>
-    /// <typeparam name="TResponse">The type of response to return after mapping the entities.</typeparam>
-    /// <param name="entityFinder">A function that retrieves a collection of entities asynchronously. Returns <see cref="Task{IEnumerable{TEntity}}"/>.</param>
-    /// <param name="responseMapper">An optional function that maps the collection of entities to the desired response format. If not provided, the entities are returned as is.</param>
-    /// <returns>
-    /// A result indicating success or failure. If entities are found, it returns an <see cref="IResult"/> with an "Ok" response containing the mapped entities.
-    /// If no entities are found, it returns a <see cref="IResult"/> with a "NotFound" error response.
-    /// </returns>
-    /// <remarks>
-    /// This method simplifies the implementation of bulk entity operations by providing a consistent way to handle the retrieval, 
-    /// error handling, and response formatting for collections of entities.
-    /// </remarks>
     private static async Task<IResult> PerformBulkEntityOperation<TEntity, TResponse>(
-        Func<Task<IEnumerable<TEntity>>> entityFinder,
-        Action<IEnumerable<TEntity>>? entityOperation = null,
-        Func<IEnumerable<TEntity>, IEnumerable<TResponse>>? responseMapper = null
+        Func<Task<IQueryable<TEntity>>> entityFinder,
+        Action<IQueryable<TEntity>>? entityOperation = null,
+        Func<IQueryable<TEntity>, IEnumerable<TResponse>>? responseMapper = null
     ) where TEntity : class, IEntity
     {
-        var entities = (await entityFinder()).ToList();
-
-        if (entities.Count == 0)
-        {
-            var error = new ErrorResponse(
-                $"{typeof(TEntity).Name}.NotFound",
-                $"No {typeof(TEntity).Name}s matched the query",
-                ErrorResponse.ErrorType.NotFound
-            );
-
-            return Microsoft.AspNetCore.Http.Results.NotFound(error);
-        }
-
+        var entities = await entityFinder();
         entityOperation?.Invoke(entities);
 
         var response = responseMapper != null ? responseMapper(entities) : entities.Cast<TResponse>();
-
         return Microsoft.AspNetCore.Http.Results.Ok(response);
     }
 }

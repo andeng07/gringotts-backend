@@ -58,5 +58,5 @@ public class UpdateReaderEndpoint : IEndpoint
 
     public record UpdateReaderRequest(string Name, Guid Location);
 
-    public record UpdateReaderResponse(Guid Id, string Name, Guid LocationId);
+    public record UpdateReaderResponse(Guid Id, string Name, Guid? LocationId);
 }

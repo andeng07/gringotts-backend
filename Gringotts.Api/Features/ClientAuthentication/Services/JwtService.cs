@@ -20,7 +20,7 @@ public class JwtService(IConfiguration configuration)
 
     private readonly string _audience =
         configuration["Jwt:Audience"] ?? throw new ConfigurationMissingFieldException("Jwt:Audience");
-    
+
     /// <summary>
     /// Generates a JWT token based on the specified claims and optional expiration time.
     /// </summary>
@@ -41,7 +41,7 @@ public class JwtService(IConfiguration configuration)
 
         return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
     }
-    
+
     /// <summary>
     /// Generates a user-specific JWT token.
     /// </summary>
@@ -63,8 +63,8 @@ public class JwtService(IConfiguration configuration)
     /// </summary>
     /// <param name="token">The JWT token to be validated.</param>
     /// <param name="validateLifetime">A flag indicating whether to validate the token's expiration time.</param>
-    /// <returns>A <see cref="TypedOperationResult{TValue}"/> containing the validated claims principal or an error operationResult if validation fails.</returns>
-    public TypedOperationResult<ClaimsPrincipal> ValidateToken(string token, bool validateLifetime)
+    /// <returns>A <see cref="TypedOperationResult{ClaimsPrincipal}"/> containing the validated claims principal or an error if validation fails.</returns>
+    public TypedOperationResult<ClaimsPrincipal> ValidateToken(string token, bool validateLifetime = true)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_secret);
@@ -82,13 +82,29 @@ public class JwtService(IConfiguration configuration)
 
         try
         {
-            return tokenHandler.ValidateToken(token, validationParameters, out _);
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+            return TypedOperationResult<ClaimsPrincipal>.Success(principal);
+        }
+        catch (SecurityTokenExpiredException)
+        {
+            return TypedOperationResult<ClaimsPrincipal>.Failure(new ErrorResponse(
+                "Jwt.Token.Expired",
+                "The token has expired.",
+                ErrorResponse.ErrorType.AccessUnauthorized));
+        }
+        catch (SecurityTokenException)
+        {
+            return TypedOperationResult<ClaimsPrincipal>.Failure(new ErrorResponse(
+                "Jwt.Token.Invalid",
+                "The token is invalid.",
+                ErrorResponse.ErrorType.AccessUnauthorized));
         }
         catch (Exception e)
         {
-            var error = new ErrorResponse("Jwt.Token.ValidationFailure", e.Message, ErrorResponse.ErrorType.Failure);
-            return TypedOperationResult<ClaimsPrincipal>.Failure(error);
+            return TypedOperationResult<ClaimsPrincipal>.Failure(new ErrorResponse(
+                "Jwt.Token.ValidationFailure",
+                e.Message,
+                ErrorResponse.ErrorType.Failure));
         }
     }
-    
 }

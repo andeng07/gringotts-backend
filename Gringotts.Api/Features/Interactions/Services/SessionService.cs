@@ -1,17 +1,15 @@
-﻿using Gringotts.Api.Features.Reader.Services;
-using Gringotts.Api.Features.Sessions.Models;
+﻿using Gringotts.Api.Features.Interactions.Models;
+using Gringotts.Api.Features.Reader.Services;
 using Gringotts.Api.Features.User.Services;
 using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Results;
 using Microsoft.EntityFrameworkCore;
-using Type = Gringotts.Api.Features.Sessions.Models.Type;
 
-namespace Gringotts.Api.Features.Sessions.Services;
+namespace Gringotts.Api.Features.Interactions.Services;
 
 public class SessionService(AppDbContext dbContext, ReaderService readerService, UserService userService)
 {
-    public async Task<TypedOperationResult<SessionLog>> ProcessSessionLog(Guid logReaderId, string cardId,
-        DateTime date)
+    public async Task<TypedOperationResult<InteractionLog>> ProcessSessionLog(Guid logReaderId, string cardId, DateTime date)
     {
         // Validate Reader
         var getReaderResult = await readerService.GetReaderById(logReaderId);
@@ -23,7 +21,7 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
         var getUserResult = await userService.GetLogUserByCardIdAsync(cardId);
         if (!getUserResult.IsSuccess)
         {
-            return await AddSessionLog(reader.Id, null, cardId, date, Type.Fallback);
+            return await AddInteractionLog(reader.Id, null, cardId, date, InteractionType.Fallback);
         }
 
         var user = getUserResult.Value!;
@@ -45,8 +43,8 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
         return await ProcessExit(userActiveSession, cardId, date);
     }
 
-    private async Task<TypedOperationResult<SessionLog>> HandleSessionTransition(ActiveSession activeSession,
-        Guid newReaderId, Guid userId, string cardId, DateTime date)
+    private async Task<TypedOperationResult<InteractionLog>> HandleSessionTransition(
+        ActiveSession activeSession, Guid newReaderId, Guid userId, string cardId, DateTime date)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         try
@@ -60,42 +58,51 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return TypedOperationResult<SessionLog>.Failure(new ErrorResponse("", ex.Message,
-                ErrorResponse.ErrorType.Conflict));
+            return TypedOperationResult<InteractionLog>.Failure(new ErrorResponse(
+                "SESSION_TRANSITION_FAILED", ex.Message, ErrorResponse.ErrorType.Conflict));
         }
     }
 
-    public async Task<SessionLog> ProcessEntry(Guid readerId, Guid userId, string cardId, DateTime dateTime)
+    public async Task<TypedOperationResult<InteractionLog>> ProcessEntry(Guid readerId, Guid userId, string cardId, DateTime dateTime)
     {
         // Ensure no duplicate active session
         var existingActiveSession = await GetActiveSession(userId);
         if (existingActiveSession != null)
         {
-            throw new InvalidOperationException("User already has an active session.");
+            return TypedOperationResult<InteractionLog>.Failure(new ErrorResponse(
+                "USER_ALREADY_HAS_ACTIVE_SESSION", "User already has an active session.",
+                ErrorResponse.ErrorType.Conflict));
         }
 
         var session = await AddSession(readerId, userId, dateTime);
         await AddActiveSession(userId, readerId, session.Id);
 
-        return await AddSessionLog(readerId, userId, cardId, dateTime, Type.Entry);
+        var log = await AddInteractionLog(readerId, userId, cardId, dateTime, InteractionType.Entry);
+        return TypedOperationResult<InteractionLog>.Success(log);
     }
 
-    public async Task<SessionLog> ProcessExit(ActiveSession activeSession, string cardId, DateTime dateTime)
+    public async Task<TypedOperationResult<InteractionLog>> ProcessExit(ActiveSession? activeSession, string cardId, DateTime dateTime)
     {
-        if (activeSession == null) throw new ArgumentException("Active session not found.", nameof(activeSession));
+        if (activeSession == null)
+        {
+            return TypedOperationResult<InteractionLog>.Failure(new ErrorResponse(
+                "ACTIVE_SESSION_NOT_FOUND", "Active session not found.", ErrorResponse.ErrorType.NotFound));
+        }
 
         var session = await GetSession(activeSession.SessionId);
         if (session == null)
         {
             await RemoveActiveSession(activeSession.Id);
-            throw new ArgumentException("Session reference from active session does not exist.", nameof(activeSession));
+            return TypedOperationResult<InteractionLog>.Failure(new ErrorResponse(
+                "SESSION_NOT_FOUND", "Session reference from active session does not exist.", ErrorResponse.ErrorType.NotFound));
         }
 
         session.EndDate = dateTime;
         await dbContext.SaveChangesAsync();
-
         await RemoveActiveSession(activeSession.Id);
-        return await AddSessionLog(session.LogReaderId, activeSession.LogUserId, cardId, dateTime, Type.Exit);
+
+        var log = await AddInteractionLog(session.LogReaderId, activeSession.LogUserId, cardId, dateTime, InteractionType.Exit);
+        return TypedOperationResult<InteractionLog>.Success(log);
     }
 
     public async Task<ActiveSession?> GetActiveSession(Guid logUserId)
@@ -109,6 +116,7 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
         var activeSession = new ActiveSession
         {
             Id = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow,
             LogUserId = logUserId,
             LogReaderId = logReaderId,
             SessionId = sessionId
@@ -116,18 +124,17 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
 
         await dbContext.ActiveSessions.AddAsync(activeSession);
         await dbContext.SaveChangesAsync();
-
         return activeSession;
     }
 
     public async Task RemoveActiveSession(Guid activeSessionId)
     {
         var activeSession = await dbContext.ActiveSessions.FindAsync(activeSessionId);
-
-        if (activeSession == null) return;
-
-        dbContext.ActiveSessions.Remove(activeSession);
-        await dbContext.SaveChangesAsync();
+        if (activeSession != null)
+        {
+            dbContext.ActiveSessions.Remove(activeSession);
+            await dbContext.SaveChangesAsync();
+        }
     }
 
     public async Task<Session?> GetSession(Guid sessionId)
@@ -140,6 +147,7 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
         var session = new Session
         {
             Id = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow,
             LogReaderId = logReaderId,
             LogUserId = logUserId,
             StartDate = startDate,
@@ -148,27 +156,24 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
 
         await dbContext.Sessions.AddAsync(session);
         await dbContext.SaveChangesAsync();
-
         return session;
     }
 
-    public async Task<SessionLog> AddSessionLog(Guid logReaderId, Guid? logUserId, string cardId, DateTime dateTime,
-        Type sessionType)
+    public async Task<InteractionLog> AddInteractionLog(Guid logReaderId, Guid? logUserId, string cardId, DateTime dateTime, InteractionType sessionInteractionType)
     {
-        var sessionLog = new SessionLog
+        var sessionLog = new InteractionLog
         {
             Id = Guid.NewGuid(),
-            TransactionId = Guid.NewGuid().ToString(), // Generate unique transaction ID
+            CreatedAt = DateTime.UtcNow,
             LogReaderId = logReaderId,
             LogUserId = logUserId,
             CardId = cardId,
             DateTime = dateTime,
-            Type = sessionType
+            InteractionType = sessionInteractionType
         };
 
-        await dbContext.SessionLogs.AddAsync(sessionLog);
+        await dbContext.InteractionLogs.AddAsync(sessionLog);
         await dbContext.SaveChangesAsync();
-
         return sessionLog;
     }
 }

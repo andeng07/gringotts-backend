@@ -17,6 +17,7 @@ public class AddLogUserEndpoint : IEndpoint
                     new Models.User
                     {
                         Id = Guid.NewGuid(),
+                        CreatedAt = DateTime.UtcNow,
                         CardId = request.CardId,
                         SchoolId = request.SchoolId,
                         FirstName = request.FirstName,
@@ -95,6 +96,6 @@ public class AddLogUserEndpoint : IEndpoint
         string LastName,
         byte Affiliation,
         byte Sex,
-        Guid Department
+        Guid? Department
     );
 }

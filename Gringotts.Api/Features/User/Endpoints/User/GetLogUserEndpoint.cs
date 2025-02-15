@@ -1,6 +1,4 @@
-﻿using Gringotts.Api.Features.User.Models;
-using Gringotts.Api.Shared.Core;
-using Gringotts.Api.Shared.Results;
+﻿using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Utilities;
 
 namespace Gringotts.Api.Features.User.Endpoints.User;
@@ -39,6 +37,6 @@ public class GetLogUserEndpoint : IEndpoint
         string LastName,
         byte Affiliation,
         byte Sex,
-        Guid DepartmentId
+        Guid? DepartmentId
     );
 }

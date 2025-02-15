@@ -36,6 +36,6 @@ public class GetReaderEndpoint : IEndpoint
     public record GetReaderResponse(
         Guid Id,
         string Name,
-        Guid Location
+        Guid? Location
     );
 }

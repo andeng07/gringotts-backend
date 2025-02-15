@@ -9,14 +9,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace Gringotts.Api.Features.ClientAuthentication.Endpoints;
 
 /// <summary>
-/// Endpoint for handling user login.
+/// Handles client authentication and login.
 /// </summary>
 /// <remarks>
-/// This endpoint validates user credentials (email and password) and returns a JWT token if the login is successful.
-/// If the login fails, it returns a 401 Unauthorized error. Additionally, validation errors are handled with appropriate error codes.
+/// This endpoint allows clients to authenticate using their credentials. Upon successful 
+/// authentication, a JWT token is generated and returned. If authentication fails, 
+/// an unauthorized response with error details is returned.
 /// </remarks>
-/// <response code="200">Returns a JWT token and the user's ID when login is successful.</response>
-/// <response code="401">Returns an error if the email or password is incorrect.</response>
+/// <response code="200">Returns a JWT token and the client ID upon successful login.</response>
+/// <response code="401">If authentication fails due to invalid credentials.</response>
 public class ClientLoginEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)

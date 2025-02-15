@@ -1,8 +1,9 @@
 using FluentValidation;
 using Gringotts.Api.Features.Client.Services;
 using Gringotts.Api.Features.ClientAuthentication.Services;
+using Gringotts.Api.Features.Interactions.Services;
+using Gringotts.Api.Features.Populator;
 using Gringotts.Api.Features.Reader.Services;
-using Gringotts.Api.Features.Sessions.Services;
 using Gringotts.Api.Features.User.Services;
 using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Utilities;
@@ -28,6 +29,8 @@ builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<SessionService>();
+
+builder.Services.AddScoped<ClientPopulatorService>();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -63,10 +66,18 @@ if (builder.Environment.IsDevelopment())
 builder.Services.AddEndpoints();
 
 var app = builder.Build();
+//
+// using (var scope = app.Services.CreateScope())
+// {
+//     var populatorService = scope.ServiceProvider.GetRequiredService<ClientPopulatorService>();
+//     await populatorService.PopulateDatabaseAsync(); // Populate with 10 clients
+// }
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapEndpoints(app.MapGroup("api"));
+
+app.UseStaticFiles();
 
 app.Run();

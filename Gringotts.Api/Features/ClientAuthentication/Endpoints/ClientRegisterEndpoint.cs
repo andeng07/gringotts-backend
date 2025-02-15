@@ -10,15 +10,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace Gringotts.Api.Features.ClientAuthentication.Endpoints;
 
 /// <summary>
-/// Endpoint for handling user registration.
+/// Handles client registration.
 /// </summary>
 /// <remarks>
-/// This endpoint registers a new user by creating a user record and associated credentials.
-/// It returns the user's ID and email upon successful registration, or a 409 Conflict error if the email is already registered.
+/// This endpoint allows new clients to register by providing their personal details 
+/// and credentials. If registration is successful, the client's information is stored, 
+/// and a response is returned. If the username is already taken, a conflict response is returned.
 /// </remarks>
-/// <response code="201">Returns the user's ID and email upon successful registration.</response>
-/// <response code="409">Returns a conflict error if the email is already registered.</response>
-/// <response code="500">Returns a generic error response if an unexpected server error occurs.</response>
+/// <response code="201">Returns the newly registered client's details.</response>
+/// <response code="409">If an account with the given username already exists.</response>
+/// <response code="500">If an unexpected error occurs during registration.</response>
 public class ClientRegisterEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
@@ -80,6 +81,14 @@ public class ClientRegisterEndpoint : IEndpoint
 
         var response =
             new RegisterUserResponse(user.Id, secret.Username, user.FirstName, user.MiddleName, user.LastName);
+        
+        var fileExtension = Path.GetExtension(request.UserProfileImage.FileName);
+        var filePath = Path.Combine("wwwroot/images", user.Id + fileExtension); 
+
+        await using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await request.UserProfileImage.CopyToAsync(stream, cancellationToken); 
+        }
 
         return Results.Created($"/users/{registeredUserResult.Value.Id}", response);
     }
@@ -118,7 +127,8 @@ public class ClientRegisterEndpoint : IEndpoint
         string FirstName,
         string? MiddleName,
         string LastName,
-        string Password
+        string Password,
+        IFormFile UserProfileImage
     );
 
     private record RegisterUserResponse(

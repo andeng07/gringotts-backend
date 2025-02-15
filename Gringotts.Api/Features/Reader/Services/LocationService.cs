@@ -32,6 +32,7 @@ public class LocationService(AppDbContext dbContext)
         var location = new Location
         {
             Id = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow,
             BuildingName = buildingName,
             RoomName = roomName
         };

@@ -1,8 +1,7 @@
 using Gringotts.Api.Features.Client.Models;
 using Gringotts.Api.Features.ClientAuthentication.Models;
+using Gringotts.Api.Features.Interactions.Models;
 using Gringotts.Api.Features.Reader.Models;
-using Gringotts.Api.Features.Sessions.Models;
-using Gringotts.Api.Features.Statistics.Models;
 using Gringotts.Api.Features.User.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,29 +16,26 @@ namespace Gringotts.Api.Shared.Core
         
         public DbSet<User> LogUsers { get; set; }
         
-        public DbSet<SessionLog> SessionLogs { get; set; }
+        public DbSet<InteractionLog> InteractionLogs { get; set; }
         public DbSet<ActiveSession> ActiveSessions { get; set; }
         public DbSet<Session> Sessions { get; set; }
         
         public DbSet<Location> Locations { get; set; }
         public DbSet<Reader> Readers { get; set; }
 
-        public DbSet<ReaderAnalytics> LogReaderAnalyticsSet { get; set; }
-        public DbSet<UserAnalytics> LogUserAnalyticsSet { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             
-            modelBuilder.Entity<Client>().HasKey(managementUser => managementUser.Id);
+            modelBuilder.Entity<Client>().HasKey(client => client.Id);
 
-            modelBuilder.Entity<ClientSecret>().HasKey(managementUserSecret => managementUserSecret.Id);
+            modelBuilder.Entity<ClientSecret>().HasKey(clientSecret => clientSecret.Id);
             modelBuilder.Entity<ClientSecret>()
                 .HasOne<Client>()
                 .WithOne()
-                .HasForeignKey<ClientSecret>(managementUserSecret => managementUserSecret.ManagementUserId)
+                .HasForeignKey<ClientSecret>(clientSecret => clientSecret.ClientId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<ClientSecret>()
-                .HasIndex(managementUserSecret => managementUserSecret.Username)
+                .HasIndex(clientSecret => clientSecret.Username)
                 .IsUnique();
 
             modelBuilder.Entity<Department>().HasKey(department => department.Id);
@@ -60,15 +56,15 @@ namespace Gringotts.Api.Shared.Core
                 .HasForeignKey(logReader => logReader.LocationId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<SessionLog>().HasKey(sessionLog => sessionLog.Id);
-            modelBuilder.Entity<SessionLog>()
+            modelBuilder.Entity<InteractionLog>().HasKey(interactionLog => interactionLog.Id);
+            modelBuilder.Entity<InteractionLog>()
                 .HasOne<Reader>()
                 .WithMany()
-                .HasForeignKey(sessionLog => sessionLog.LogReaderId);
-            modelBuilder.Entity<SessionLog>()
+                .HasForeignKey(interactionLog => interactionLog.LogReaderId);
+            modelBuilder.Entity<InteractionLog>()
                 .HasOne<User>()
                 .WithMany()
-                .HasForeignKey(sessionLog => sessionLog.LogUserId);
+                .HasForeignKey(interactionLog => interactionLog.LogUserId);
             
             modelBuilder.Entity<Session>().HasKey(session => session.Id);
             modelBuilder.Entity<Session>()
@@ -90,19 +86,6 @@ namespace Gringotts.Api.Shared.Core
                 .HasOne<User>()
                 .WithMany()
                 .HasForeignKey(activeSession => activeSession.LogUserId)
-                .OnDelete(DeleteBehavior.Cascade);
-            
-            modelBuilder.Entity<ReaderAnalytics>().HasKey(logReaderAnalytics => logReaderAnalytics.Id);
-            modelBuilder.Entity<ReaderAnalytics>()
-                .HasOne<Reader>()
-                .WithOne()
-                .HasForeignKey<ReaderAnalytics>(logReaderAnalytics => logReaderAnalytics.ReaderId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<UserAnalytics>()
-                .HasOne<User>()
-                .WithOne()
-                .HasForeignKey<UserAnalytics>(logUserAnalytics => logUserAnalytics.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

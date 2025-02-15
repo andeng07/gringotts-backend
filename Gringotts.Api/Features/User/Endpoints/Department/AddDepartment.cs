@@ -15,6 +15,7 @@ public class AddDepartment : IEndpoint
                     new Models.Department
                     {
                         Id = Guid.NewGuid(),
+                        CreatedAt = DateTime.UtcNow,
                         Name = request.Name
                     },
                     dbContext,

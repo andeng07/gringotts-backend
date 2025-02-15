@@ -32,9 +32,9 @@ public class AddReaderEndpoint : IEndpoint
                         new Models.Reader
                         {
                             Id = newId,
+                            CreatedAt = DateTime.UtcNow,
                             Name = request.Name,
-                            LocationId = request.Location,
-                            AccessToken = jwtService.GenerateToken(newId)
+                            LocationId = request.Location
                         },
                         context,
                         uri: reader => $"readers/{reader.Id}",
@@ -65,5 +65,5 @@ public class AddReaderEndpoint : IEndpoint
 
     public record AddReaderRequest(string Name, Guid Location);
 
-    public record AddReaderResponse(Guid Id, string Name, Guid LocationId);
+    public record AddReaderResponse(Guid Id, string Name, Guid? LocationId);
 }
