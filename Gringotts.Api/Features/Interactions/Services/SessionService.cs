@@ -26,7 +26,14 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
 
         var user = getUserResult.Value!;
         var userActiveSession = await GetActiveSession(user.Id);
-
+        
+        // TODO: Logical bug: Cannot Exit when Access expires while being in an Active Session
+        var isAccessExpired = DateTime.UtcNow <= user.AccessExpiry;
+        if (isAccessExpired)
+        {
+            return await AddInteractionLog(reader.Id, user.Id, cardId, date, InteractionType.Unauthorized);
+        }
+        
         // No active session, process entry
         if (userActiveSession == null)
         {
@@ -74,8 +81,7 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
                 ErrorResponse.ErrorType.Conflict));
         }
 
-        var session = await AddSession(readerId, userId, dateTime);
-        await AddActiveSession(userId, readerId, session.Id);
+        await AddActiveSession(userId, readerId, dateTime);
 
         var log = await AddInteractionLog(readerId, userId, cardId, dateTime, InteractionType.Entry);
         return TypedOperationResult<InteractionLog>.Success(log);
@@ -89,15 +95,10 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
                 "ACTIVE_SESSION_NOT_FOUND", "Active session not found.", ErrorResponse.ErrorType.NotFound));
         }
 
-        var session = await GetSession(activeSession.SessionId);
-        if (session == null)
-        {
-            await RemoveActiveSession(activeSession.Id);
-            return TypedOperationResult<InteractionLog>.Failure(new ErrorResponse(
-                "SESSION_NOT_FOUND", "Session reference from active session does not exist.", ErrorResponse.ErrorType.NotFound));
-        }
+        await RemoveActiveSession(activeSession.Id);
 
-        session.EndDate = dateTime;
+        var session = await AddSession(activeSession.LogReaderId, activeSession.LogUserId, activeSession.StartDate, dateTime);
+        
         await dbContext.SaveChangesAsync();
         await RemoveActiveSession(activeSession.Id);
 
@@ -111,7 +112,7 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
             activeSession.LogUserId == logUserId);
     }
 
-    public async Task<ActiveSession> AddActiveSession(Guid logUserId, Guid logReaderId, Guid sessionId)
+    public async Task<ActiveSession> AddActiveSession(Guid logUserId, Guid logReaderId, DateTime startDate)
     {
         var activeSession = new ActiveSession
         {
@@ -119,7 +120,7 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
             CreatedAt = DateTime.UtcNow,
             LogUserId = logUserId,
             LogReaderId = logReaderId,
-            SessionId = sessionId
+            StartDate = startDate
         };
 
         await dbContext.ActiveSessions.AddAsync(activeSession);
@@ -142,7 +143,7 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
         return await dbContext.Sessions.FindAsync(sessionId);
     }
 
-    public async Task<Session> AddSession(Guid logReaderId, Guid logUserId, DateTime startDate)
+    public async Task<Session> AddSession(Guid logReaderId, Guid logUserId, DateTime startDate, DateTime endDate)
     {
         var session = new Session
         {
@@ -151,7 +152,7 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
             LogReaderId = logReaderId,
             LogUserId = logUserId,
             StartDate = startDate,
-            EndDate = null
+            EndDate = endDate
         };
 
         await dbContext.Sessions.AddAsync(session);

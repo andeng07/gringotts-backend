@@ -15,5 +15,5 @@ public record ActiveSession : IEntity
     public required DateTime CreatedAt { get; init; }
     public required Guid LogUserId { get; init; }
     public required Guid LogReaderId { get; init; }
-    public required Guid SessionId { get; init; }
+    public required DateTime StartDate { get; init; }
 }
