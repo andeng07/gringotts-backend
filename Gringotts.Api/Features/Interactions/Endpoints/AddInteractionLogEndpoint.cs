@@ -18,17 +18,17 @@ namespace Gringotts.Api.Features.Interactions.Endpoints;
 /// </remarks>
 /// <response code="200">Returns the processed session log details upon successful creation.</response>
 /// <response code="400">Returns error details if the request validation fails, such as an invalid reader ID or card ID.</response>
-public class AddLogSessionEndpoint : IEndpoint
+public class AddInteractionLogEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPost("logs/", HandleAsync)
             .WithAuthenticationFilter()
-            .Produces<ProcessUserLogResponse>()
+            .Produces<AddProcessUserLogResponse>()
             .Produces<List<ErrorResponse>>(StatusCodes.Status400BadRequest);
     }
 
-    public async Task<IResult> HandleAsync([FromBody] ProcessUserLogRequest request, SessionService sessionService)
+    public async Task<IResult> HandleAsync([FromBody] AddInteractionLogRequest request, SessionService sessionService)
     {
         var processSessionLogResult = await sessionService.ProcessSessionLog(
             request.LogReaderId,
@@ -43,7 +43,7 @@ public class AddLogSessionEndpoint : IEndpoint
         
         var sessionLog = processSessionLogResult.Value!;
         
-        var response = new ProcessUserLogResponse(
+        var response = new AddProcessUserLogResponse(
             sessionLog.Id,
             sessionLog.LogReaderId,
             sessionLog.LogUserId,
@@ -55,6 +55,6 @@ public class AddLogSessionEndpoint : IEndpoint
         return Results.Ok(response);
     }
 
-    public record ProcessUserLogRequest(Guid LogReaderId, string CardId, DateTime DateTime);
-    public record ProcessUserLogResponse(Guid SessionLogId, Guid LogReaderId, Guid? LogUserId, string CardId, DateTime DateTime, InteractionType InteractionType);
+    public record AddInteractionLogRequest(Guid LogReaderId, string CardId, DateTime DateTime);
+    public record AddProcessUserLogResponse(Guid SessionLogId, Guid LogReaderId, Guid? LogUserId, string CardId, DateTime DateTime, InteractionType InteractionType);
 }

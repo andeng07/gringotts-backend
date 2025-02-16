@@ -1,10 +1,8 @@
-﻿using System.Linq.Expressions;
+﻿using Gringotts.Api.Features.Client.DataFilters;
 using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Pagination;
 using Gringotts.Api.Shared.Utilities;
-using LinqKit;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gringotts.Api.Features.Client.Endpoints;
 
@@ -26,28 +24,13 @@ public class GetClientsEndpoint : IEndpoint
         app.MapGet("/clients", async ([FromQuery] int page, [FromQuery] int pageSize, [FromQuery] string? searchTerm,
                     AppDbContext dbContext) =>
                 {
-                    var predicate = PredicateBuilder.New<Models.Client>(c => true); // Default: no filter
-
-                    if (!string.IsNullOrWhiteSpace(searchTerm))
-                    {
-                        var terms = searchTerm.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                        // Build search query with multiple terms using PredicateBuilder
-                        foreach (var term in terms)
-                        {
-                            var searchExpression = PredicateBuilder.New<Models.Client>(c =>
-                                EF.Functions.ILike((c.FirstName + " " + (c.MiddleName ?? "") + " " + c.LastName).Trim(), $"%{term}%")
-                            );
-
-                            predicate = predicate.And(searchExpression); // Combine with AND
-                        }
-                    }
+                    var dataFilter = new ClientFilter(searchTerm).ApplyFilters();
 
                     return await EndpointHelpers.GetEntities<Models.Client, GetClientEndpoint.GetClientResponse>(
                         dbContext,
                         page,
                         pageSize,
-                        entityQuery: predicate,
+                        entityQuery: dataFilter,
                         responseMapper: c =>
                             new GetClientEndpoint.GetClientResponse(c.Id, c.CreatedAt, c.FirstName, c.MiddleName, c.LastName)
                     );
