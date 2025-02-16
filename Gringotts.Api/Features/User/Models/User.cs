@@ -6,6 +6,7 @@ namespace Gringotts.Api.Features.User.Models
     {
         public required Guid Id { get; init; }
         public required DateTime CreatedAt { get; init; }
+        public required DateTime AccessExpiry { get; set; }
         public required string CardId { get; set; }
         public required string SchoolId { get; set; }
         public required string FirstName { get; set; }

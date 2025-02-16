@@ -19,17 +19,19 @@ public class GetLogUserEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapGet("users/{id:guid}",
-            (Guid id, AppDbContext dbContext) => EndpointHelpers.GetEntity<Models.User, GetLogUserResponse>(id,
-                dbContext,
-                responseMapper: user => new GetLogUserResponse(user.Id, user.CardId, user.SchoolId, user.FirstName,
-                    user.MiddleName, user.LastName, user.Affiliation, user.Sex, user.DepartmentId)
+                (Guid id, AppDbContext dbContext) => EndpointHelpers.GetEntity<Models.User, GetLogUserResponse>(id,
+                    dbContext,
+                    responseMapper: user => new GetLogUserResponse(user.Id, user.AccessExpiry, user.CardId,
+                        user.SchoolId, user.FirstName,
+                        user.MiddleName, user.LastName, user.Affiliation, user.Sex, user.DepartmentId)
+                )
             )
-        )
-        .WithAuthenticationFilter();
+            .WithAuthenticationFilter();
     }
 
     private record GetLogUserResponse(
         Guid Id,
+        DateTime AccessExpiry,
         string CardId,
         string SchoolId,
         string FirstName,

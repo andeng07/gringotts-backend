@@ -18,6 +18,7 @@ public class AddLogUserEndpoint : IEndpoint
                     {
                         Id = Guid.NewGuid(),
                         CreatedAt = DateTime.UtcNow,
+                        AccessExpiry = request.AccessExpiry,
                         CardId = request.CardId,
                         SchoolId = request.SchoolId,
                         FirstName = request.FirstName,
@@ -30,7 +31,7 @@ public class AddLogUserEndpoint : IEndpoint
                     dbContext,
                     uri: logUser => $"/users/{logUser.Id}",
                     responseMapper: logUser => new AddLogUserResponse(
-                        logUser.Id, logUser.CardId, logUser.SchoolId, logUser.FirstName, logUser.MiddleName,
+                        logUser.Id, logUser.AccessExpiry, logUser.CardId, logUser.SchoolId, logUser.FirstName, logUser.MiddleName,
                         logUser.LastName, logUser.Affiliation, logUser.Sex, logUser.DepartmentId
                     )
                 )
@@ -77,6 +78,7 @@ public class AddLogUserEndpoint : IEndpoint
     }
 
     public record AddLogUserRequest(
+        DateTime AccessExpiry,
         string CardId,
         string SchoolId,
         string FirstName,
@@ -89,6 +91,7 @@ public class AddLogUserEndpoint : IEndpoint
 
     public record AddLogUserResponse(
         Guid Id,
+        DateTime AccessExpiry,
         string CardId,
         string SchoolId,
         string FirstName,

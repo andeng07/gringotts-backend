@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Gringotts.Api.Features.User.Models;
 using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Errors;
 using Gringotts.Api.Shared.Results;
@@ -26,6 +25,7 @@ public class UpdateLogUserEndpoint : IEndpoint
                     EndpointHelpers.UpdateEntity<Models.User, UpdateLogUserResponse>(id, dbContext,
                         updateEntity: logUser =>
                         {
+                            logUser.AccessExpiry = request.AccessExpiry;
                             logUser.CardId = request.CardId;
                             logUser.SchoolId = request.SchoolId;
                             logUser.FirstName = request.FirstName;
@@ -35,6 +35,7 @@ public class UpdateLogUserEndpoint : IEndpoint
                         },
                         responseMapper: logUser => new UpdateLogUserResponse(
                             logUser.Id,
+                            logUser.AccessExpiry,
                             logUser.CardId,
                             logUser.SchoolId,
                             logUser.FirstName,
@@ -82,6 +83,7 @@ public class UpdateLogUserEndpoint : IEndpoint
     }
 
     public record UpdateLogUserRequest(
+        DateTime AccessExpiry,
         string CardId,
         string SchoolId,
         string FirstName,
@@ -93,6 +95,7 @@ public class UpdateLogUserEndpoint : IEndpoint
 
     public record UpdateLogUserResponse(
         Guid Id,
+        DateTime AccessExpiry,
         string CardId,
         string SchoolId,
         string FirstName,
