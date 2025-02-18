@@ -19,7 +19,7 @@ public class DeleteLocationEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapDelete("locations/{id:guid}", async (Guid id, AppDbContext dbContext) =>
+        app.MapDelete("/locations/{id:guid}", async (Guid id, AppDbContext dbContext) =>
                 await EndpointHelpers.DeleteEntity<Location, DeleteLocationResponse>(
                     id,
                     dbContext,

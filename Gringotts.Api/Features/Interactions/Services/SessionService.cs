@@ -16,7 +16,7 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
         if (!getReaderResult.IsSuccess) return getReaderResult.Errors;
 
         var reader = getReaderResult.Value!;
-
+        
         // Validate User
         var getUserResult = await userService.GetLogUserByCardIdAsync(cardId);
         if (!getUserResult.IsSuccess)

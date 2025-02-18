@@ -1,4 +1,7 @@
-﻿using Gringotts.Api.Features.ClientAuthentication.Services;
+﻿using System.Security.Claims;
+using Gringotts.Api.Features.ClientAuthentication.Services;
+using Gringotts.Api.Shared.Core;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gringotts.Api.Shared.Filters.Authentication;
 
@@ -8,7 +11,7 @@ namespace Gringotts.Api.Shared.Filters.Authentication;
 /// the token using the provided <see cref="JwtService"/>.
 /// </summary>
 /// <param name="jwtService">The service used to validate the JWT token.</param>
-public class AuthenticationFilter(JwtService jwtService) : IEndpointFilter
+public class AuthenticationFilter(JwtService jwtService, AppDbContext dbContext) : IEndpointFilter
 {
     /// <summary>
     /// Invokes the authentication logic to validate the JWT token.
@@ -39,7 +42,11 @@ public class AuthenticationFilter(JwtService jwtService) : IEndpointFilter
         // Attach the validated claims to the HttpContext for downstream use
         context.HttpContext.User = validationResult.Value!;
 
+        var userId = validationResult.Value!.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null || !await dbContext.Clients.AnyAsync(client => client.Id == Guid.Parse(userId)))
+            return Microsoft.AspNetCore.Http.Results.Unauthorized();
+
         return await next(context);
     }
-    
 }

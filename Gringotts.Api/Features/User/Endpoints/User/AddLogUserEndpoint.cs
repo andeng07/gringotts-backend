@@ -77,6 +77,7 @@ public class AddLogUserEndpoint : IEndpoint
         }
     }
 
+    // TODO avatar
     public record AddLogUserRequest(
         DateTime AccessExpiry,
         string CardId,

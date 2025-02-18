@@ -22,5 +22,5 @@ public record InteractionLog : IEntity
 
 public enum InteractionType : byte
 {
-    Entry = 1, Exit = 2, Unauthorized = 3, Fallback = 4
+    Entry = 0, Exit = 1, Unauthorized = 2, Fallback = 3
 }

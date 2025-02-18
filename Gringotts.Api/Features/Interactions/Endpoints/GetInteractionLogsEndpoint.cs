@@ -10,7 +10,7 @@ public class GetInteractionLogsEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/logs/filter", async (
+        app.MapPost("/interaction-logs/filter/", async (
             [FromBody] GetInteractionLogsRequest request,
             AppDbContext dbContext
         ) =>
@@ -20,7 +20,7 @@ public class GetInteractionLogsEndpoint : IEndpoint
                 request.ReaderIds,
                 request.From,
                 request.To,
-                request.Type
+                request.InteractionTypes
             ).ApplyFilters();
 
             return await EndpointHelpers.GetEntities<InteractionLog, GetInteractionLogResponse>(
@@ -38,7 +38,8 @@ public class GetInteractionLogsEndpoint : IEndpoint
                         entity.InteractionType
                     )
             );
-        });
+        })
+        .WithAuthenticationFilter();
     }
 
     public record GetInteractionLogsRequest(
@@ -48,7 +49,7 @@ public class GetInteractionLogsEndpoint : IEndpoint
         IEnumerable<Guid>? ReaderIds,
         DateTime? From,
         DateTime? To,
-        InteractionType? Type
+        IEnumerable<InteractionType>? InteractionTypes
     );
 
     public record GetInteractionLogResponse(
@@ -57,6 +58,6 @@ public class GetInteractionLogsEndpoint : IEndpoint
         Guid? LogUserId,
         string CardId,
         DateTime DateTime,
-        InteractionType Type
+        InteractionType InteractionType
     );
 }

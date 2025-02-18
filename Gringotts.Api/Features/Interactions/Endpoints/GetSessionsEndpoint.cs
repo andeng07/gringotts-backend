@@ -10,7 +10,7 @@ public class GetSessionsEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
 {
-        app.MapPost("/sessions/filter", async (
+        app.MapPost("/sessions/filter/", async (
             [FromBody] GetSessionsRequest request,
             AppDbContext dbContext
         ) =>
@@ -36,7 +36,8 @@ public class GetSessionsEndpoint : IEndpoint
                         entity.EndDate
                     )
             );
-        });
+        })
+        .WithAuthenticationFilter();
     }
 
     public record GetSessionsRequest(

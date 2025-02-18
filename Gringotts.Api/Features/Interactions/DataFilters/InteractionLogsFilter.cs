@@ -9,7 +9,7 @@ public class InteractionLogsFilter(
     IEnumerable<Guid>? readerIds,
     DateTime? from,
     DateTime? to,
-    InteractionType? interactionType
+    IEnumerable<InteractionType>? interactionTypes
 ) : IDataFilter<InteractionLog>
 {
     public Expression<Func<InteractionLog, bool>> ApplyFilters()
@@ -40,9 +40,9 @@ public class InteractionLogsFilter(
         }
 
         // Filter by InteractionType (if provided)
-        if (interactionType.HasValue)
+        if (interactionTypes?.Any() == true)
         {
-            filter.Where(log => log.InteractionType == interactionType.Value);
+            filter.Where(log => interactionTypes.Contains(log.InteractionType));
         }
 
         return filter.Build();

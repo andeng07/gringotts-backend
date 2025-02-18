@@ -42,7 +42,8 @@ public class UpdateLogUserEndpoint : IEndpoint
                             logUser.MiddleName,
                             logUser.LastName,
                             logUser.Affiliation,
-                            logUser.Sex
+                            logUser.Sex,
+                            logUser.DepartmentId
                         )
                     )
             )
@@ -90,7 +91,8 @@ public class UpdateLogUserEndpoint : IEndpoint
         string? MiddleName,
         string LastName,
         byte Affiliation,
-        byte Sex
+        byte Sex,
+        Guid Department
     );
 
     public record UpdateLogUserResponse(
@@ -102,6 +104,7 @@ public class UpdateLogUserEndpoint : IEndpoint
         string? MiddleName,
         string LastName,
         byte Affiliation,
-        byte Sex
+        byte Sex,
+        Guid? Department
     );
 }

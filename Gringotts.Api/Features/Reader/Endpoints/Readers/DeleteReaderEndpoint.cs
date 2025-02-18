@@ -18,7 +18,7 @@ public class DeleteReaderEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapDelete("readers/{id:guid}",
+        app.MapDelete("/readers/{id:guid}",
                 async (Guid id, AppDbContext dbContext) =>
                     await EndpointHelpers.DeleteEntity<Models.Reader, DeleteReaderResponse>(
                         id,
@@ -33,5 +33,5 @@ public class DeleteReaderEndpoint : IEndpoint
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
     }
 
-    public record DeleteReaderResponse(Guid Id, string ReaderName, Guid? Location);
+    public record DeleteReaderResponse(Guid Id, string Name, Guid? Location);
 }

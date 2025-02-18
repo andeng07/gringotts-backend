@@ -29,7 +29,7 @@ public class GetLogUserEndpoint : IEndpoint
             .WithAuthenticationFilter();
     }
 
-    private record GetLogUserResponse(
+    public record GetLogUserResponse(
         Guid Id,
         DateTime AccessExpiry,
         string CardId,

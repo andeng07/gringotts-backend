@@ -11,7 +11,8 @@ public class DeleteDepartment : IEndpoint
             async (Guid id, AppDbContext dbContext) =>
                 await EndpointHelpers.DeleteEntity<Models.Department, DeleteDepartmentResponse>(id, dbContext,
                     responseMapper: department => new DeleteDepartmentResponse(department.Id, department.Name))
-        );
+        )
+        .WithAuthenticationFilter();
     }
 
     public record DeleteDepartmentResponse(Guid Id, string Name);

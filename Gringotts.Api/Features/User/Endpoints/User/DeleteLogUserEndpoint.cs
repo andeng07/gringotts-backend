@@ -1,5 +1,4 @@
-﻿using Gringotts.Api.Features.User.Models;
-using Gringotts.Api.Shared.Core;
+﻿using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Utilities;
 
 namespace Gringotts.Api.Features.User.Endpoints.User;
@@ -23,8 +22,8 @@ public class DeleteLogUserEndpoint : IEndpoint
                         id,
                         dbContext,
                         entity => new DeleteLogUserResponse(
-                            entity.Id, entity.CardId, entity.SchoolId, entity.FirstName, entity.MiddleName,
-                            entity.LastName
+                            entity.Id, entity.AccessExpiry, entity.CardId, entity.SchoolId, entity.FirstName,
+                            entity.MiddleName, entity.LastName, entity.Affiliation, entity.Sex, entity.DepartmentId
                         )
                     )
             )
@@ -34,11 +33,15 @@ public class DeleteLogUserEndpoint : IEndpoint
     }
 
     public record DeleteLogUserResponse(
-        Guid Guid,
+        Guid Id,
+        DateTime AccessExpiry,
         string CardId,
         string SchoolId,
         string FirstName,
         string? MiddleName,
-        string LastName
+        string LastName,
+        byte Affiliation,
+        byte Sex,
+        Guid? Department
     );
 }

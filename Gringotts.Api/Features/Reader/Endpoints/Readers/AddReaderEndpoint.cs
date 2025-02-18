@@ -23,7 +23,7 @@ public class AddReaderEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("readers",
+        app.MapPost("/readers/",
                 async ([FromBody] AddReaderRequest request, AppDbContext context, JwtService jwtService) =>
                 {
                     var newId = Guid.NewGuid();
@@ -65,5 +65,5 @@ public class AddReaderEndpoint : IEndpoint
 
     public record AddReaderRequest(string Name, Guid Location);
 
-    public record AddReaderResponse(Guid Id, string Name, Guid? LocationId);
+    public record AddReaderResponse(Guid Id, string Name, Guid? Location);
 }

@@ -22,7 +22,7 @@ public class GetClientEndpoint : IEndpoint
                 async (Guid id, AppDbContext dbContext) =>
                     await EndpointHelpers.GetEntity<Models.Client, GetClientResponse>(
                         id, dbContext, responseMapper: client =>
-                            new GetClientResponse(client.Id, client.CreatedAt, client.FirstName, client.MiddleName, client.LastName)
+                            new GetClientResponse(client.Id, client.FirstName, client.MiddleName, client.LastName)
                     )
             )
             .WithAuthenticationFilter()
@@ -30,5 +30,5 @@ public class GetClientEndpoint : IEndpoint
             .Produces(StatusCodes.Status404NotFound);
     }
 
-    public record GetClientResponse(Guid Id, DateTime CreatedAt, string FirstName, string? MiddleName, string LastName);
+    public record GetClientResponse(Guid Id, string FirstName, string? MiddleName, string LastName);
 }

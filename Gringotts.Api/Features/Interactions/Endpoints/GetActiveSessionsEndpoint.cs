@@ -10,10 +10,10 @@ public class GetActiveSessionsEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/active-sessions/filter", async (
+        app.MapPost("/active-sessions/filter/", async (
             [FromBody] GetActiveSessionsRequest request,
             AppDbContext dbContext
-        ) =>
+        ) => 
         {
             var filter = new ActiveSessionFilter(
                 request.UserIds, request.ReaderIds, request.From, request.To
@@ -32,7 +32,8 @@ public class GetActiveSessionsEndpoint : IEndpoint
                         entity.StartDate
                     )
             );
-        });
+        })
+        .WithAuthenticationFilter();
     }
 
     public record GetActiveSessionsRequest(

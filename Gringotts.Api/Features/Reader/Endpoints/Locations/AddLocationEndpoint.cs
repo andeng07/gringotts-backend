@@ -21,7 +21,7 @@ public class AddLocationEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("locations",
+        app.MapPost("/locations/",
                 async ([FromBody] AddLocationRequest request, AppDbContext dbContext) =>
                 await EndpointHelpers.CreateEntity<Location, AddLocationResponse>(
                     new Location { Id = Guid.NewGuid(), CreatedAt = DateTime.UtcNow, BuildingName = request.BuildingName, RoomName = request.RoomName },

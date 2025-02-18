@@ -19,7 +19,7 @@ public class GetLocationEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("locations/{id:guid}", async (Guid id, AppDbContext dbContext) => await
+        app.MapGet("/locations/{id:guid}", async (Guid id, AppDbContext dbContext) => await
                 EndpointHelpers.GetEntity<Location, GetLocationResponse>(
                     id,
                     dbContext,

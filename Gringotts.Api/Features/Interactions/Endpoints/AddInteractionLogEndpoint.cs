@@ -22,9 +22,9 @@ public class AddInteractionLogEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("logs/", HandleAsync)
+        app.MapPost("/logs/", HandleAsync)
             .WithAuthenticationFilter()
-            .Produces<AddProcessUserLogResponse>()
+            .Produces<AddInteractionLogResponse>()
             .Produces<List<ErrorResponse>>(StatusCodes.Status400BadRequest);
     }
 
@@ -40,10 +40,10 @@ public class AddInteractionLogEndpoint : IEndpoint
         {
             return Results.BadRequest(processSessionLogResult.Errors);
         }
-        
+
         var sessionLog = processSessionLogResult.Value!;
-        
-        var response = new AddProcessUserLogResponse(
+
+        var response = new AddInteractionLogResponse(
             sessionLog.Id,
             sessionLog.LogReaderId,
             sessionLog.LogUserId,
@@ -51,10 +51,18 @@ public class AddInteractionLogEndpoint : IEndpoint
             sessionLog.DateTime,
             sessionLog.InteractionType
         );
-        
+
         return Results.Ok(response);
     }
 
     public record AddInteractionLogRequest(Guid LogReaderId, string CardId, DateTime DateTime);
-    public record AddProcessUserLogResponse(Guid SessionLogId, Guid LogReaderId, Guid? LogUserId, string CardId, DateTime DateTime, InteractionType InteractionType);
+
+    public record AddInteractionLogResponse(
+        Guid Id,
+        Guid LogReaderId,
+        Guid? LogUserId,
+        string CardId,
+        DateTime DateTime,
+        InteractionType InteractionType
+    );
 }

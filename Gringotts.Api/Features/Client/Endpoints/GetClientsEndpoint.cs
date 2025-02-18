@@ -18,26 +18,26 @@ namespace Gringotts.Api.Features.Client.Endpoints;
 /// <response code="200">Returns a paginated list of clients.</response>
 public class GetClientsEndpoint : IEndpoint
 {
-    // TODO COMPLEX SEARCH EACH FIELD OR ADD A NEW ENDPOINT (GET /clients/filter WITH BODY SO THAT IT GETS MUCH EASIER)
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/clients", async ([FromQuery] int page, [FromQuery] int pageSize, [FromQuery] string? searchTerm,
+        app.MapPost("/clients/filter", async ([FromBody] GetClientsRequest request,
                     AppDbContext dbContext) =>
                 {
-                    var dataFilter = new ClientFilter(searchTerm).ApplyFilters();
+                    var dataFilter = new ClientFilter(request.SearchTerm).ApplyFilters();
 
                     return await EndpointHelpers.GetEntities<Models.Client, GetClientEndpoint.GetClientResponse>(
                         dbContext,
-                        page,
-                        pageSize,
+                        request.Page,
+                        request.PageSize,
                         entityQuery: dataFilter,
                         responseMapper: c =>
-                            new GetClientEndpoint.GetClientResponse(c.Id, c.CreatedAt, c.FirstName, c.MiddleName, c.LastName)
+                            new GetClientEndpoint.GetClientResponse(c.Id, c.FirstName, c.MiddleName, c.LastName)
                     );
                 }
             )
-
-            //.WithAuthenticationFilter()
+            .WithAuthenticationFilter()
             .Produces<PaginatedResult<GetClientEndpoint.GetClientResponse>>();
     }
+
+    public record GetClientsRequest(int Page, int PageSize, string? SearchTerm);
 }

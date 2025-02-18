@@ -1,3 +1,4 @@
+using System.Net;
 using FluentValidation;
 using Gringotts.Api.Features.Client.Services;
 using Gringotts.Api.Features.ClientAuthentication.Services;
@@ -63,15 +64,30 @@ if (builder.Environment.IsDevelopment())
     });
 }
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        policy =>
+        {
+            policy.AllowAnyOrigin() // Allows all origins
+                .AllowAnyMethod()  // Allows all HTTP methods
+                .AllowAnyHeader(); // Allows all headers
+        });
+});
+
 builder.Services.AddEndpoints();
 
 var app = builder.Build();
-//
+
+app.UseCors("AllowAllOrigins");
+
 // using (var scope = app.Services.CreateScope())
 // {
 //     var populatorService = scope.ServiceProvider.GetRequiredService<ClientPopulatorService>();
 //     await populatorService.PopulateDatabaseAsync(); // Populate with 10 clients
 // }
+
+// TODO: setup admin account
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -80,4 +96,18 @@ app.MapEndpoints(app.MapGroup("api"));
 
 app.UseStaticFiles();
 
-app.Run();
+app.Run($"http://{GetLocalIPAddress()}:7106");
+
+string GetLocalIPAddress()
+{
+    var host = Dns.GetHostEntry(Dns.GetHostName());
+    foreach (var ip in host.AddressList)
+    {
+        // You might need to adjust this to check for the correct local IP
+        if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+        {
+            return ip.ToString();
+        }
+    }
+    throw new Exception("Local IP address not found.");
+}

@@ -21,7 +21,7 @@ public class UpdateReaderEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPut("readers/{id:guid}",
+        app.MapPut("/readers/{id:guid}",
                 async ([FromBody] UpdateReaderRequest request, Guid id, AppDbContext dbContext) =>
                 await EndpointHelpers.UpdateEntity<Models.Reader, UpdateReaderResponse>(
                     id,
@@ -58,5 +58,5 @@ public class UpdateReaderEndpoint : IEndpoint
 
     public record UpdateReaderRequest(string Name, Guid Location);
 
-    public record UpdateReaderResponse(Guid Id, string Name, Guid? LocationId);
+    public record UpdateReaderResponse(Guid Id, string Name, Guid? Location);
 }
