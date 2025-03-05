@@ -8,7 +8,6 @@ using Gringotts.Api.Features.Reader.Services;
 using Gringotts.Api.Features.User.Services;
 using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Utilities;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -32,7 +31,7 @@ builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<SessionService>();
 
-builder.Services.AddScoped<ClientPopulatorService>();
+builder.Services.AddScoped<PopulatorService>();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -84,8 +83,8 @@ app.UseCors("AllowAllOrigins");
 
 // using (var scope = app.Services.CreateScope())
 // {
-//     var populatorService = scope.ServiceProvider.GetRequiredService<ClientPopulatorService>();
-//     await populatorService.PopulateDatabaseAsync1(); 
+//     var populatorService = scope.ServiceProvider.GetRequiredService<PopulatorService>();
+//     await populatorService.PopulateDatabaseAsync(); 
 // }
 
 // TODO: setup admin account
