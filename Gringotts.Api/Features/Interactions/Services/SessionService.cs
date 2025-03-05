@@ -27,8 +27,7 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
         var user = getUserResult.Value!;
         var userActiveSession = await GetActiveSession(user.Id);
         
-        // TODO: Logical bug: Cannot Exit when Access expires while being in an Active Session
-        var isAccessExpired = DateTime.UtcNow <= user.AccessExpiry;
+        var isAccessExpired = DateTime.UtcNow >= user.AccessExpiry;
         if (isAccessExpired)
         {
             return await AddInteractionLog(reader.Id, user.Id, cardId, date, InteractionType.Unauthorized);

@@ -8,6 +8,7 @@ using Gringotts.Api.Features.Reader.Services;
 using Gringotts.Api.Features.User.Services;
 using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Utilities;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -70,7 +71,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.AllowAnyOrigin() // Allows all origins
-                .AllowAnyMethod()  // Allows all HTTP methods
+                .AllowAnyMethod() // Allows all HTTP methods
                 .AllowAnyHeader(); // Allows all headers
         });
 });
@@ -84,7 +85,7 @@ app.UseCors("AllowAllOrigins");
 // using (var scope = app.Services.CreateScope())
 // {
 //     var populatorService = scope.ServiceProvider.GetRequiredService<ClientPopulatorService>();
-//     await populatorService.PopulateDatabaseAsync(); // Populate with 10 clients
+//     await populatorService.PopulateDatabaseAsync1(); 
 // }
 
 // TODO: setup admin account
@@ -96,8 +97,7 @@ app.MapEndpoints(app.MapGroup("api"));
 
 app.UseStaticFiles();
 
-app.Run($"http://{GetLocalIPAddress()}:7106");
-
+app.Run();
 string GetLocalIPAddress()
 {
     var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -109,5 +109,6 @@ string GetLocalIPAddress()
             return ip.ToString();
         }
     }
+
     throw new Exception("Local IP address not found.");
 }

@@ -11,7 +11,7 @@ public class GetDepartments: IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/departments/filter", async ([FromBody] GetDepartmentsRequest request,
+        app.MapPost("/departments/filter", async ([FromBody] GetDepartmentsRequest request,
                     AppDbContext dbContext) =>
                 {
                     var dataFilter = new DepartmentFilter(request.SearchTerm).ApplyFilters();
@@ -26,7 +26,7 @@ public class GetDepartments: IEndpoint
                     );
                 }
             )
-            .WithAuthenticationFilter()
+            // .WithAuthenticationFilter()
             .Produces<PaginatedResult<GetReaderEndpoint.GetReaderResponse>>();
     }
 

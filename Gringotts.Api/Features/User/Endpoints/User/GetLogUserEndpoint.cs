@@ -39,6 +39,6 @@ public class GetLogUserEndpoint : IEndpoint
         string LastName,
         byte Affiliation,
         byte Sex,
-        Guid? DepartmentId
+        Guid? Department
     );
 }

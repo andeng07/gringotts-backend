@@ -5,6 +5,7 @@ using Gringotts.Api.Features.Interactions.Models;
 using Gringotts.Api.Features.User.Models;
 using Gringotts.Api.Shared.Core;
 using Gringotts.Api.Shared.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 
 namespace Gringotts.Api.Features.Populator;
@@ -15,141 +16,186 @@ public class ClientPopulatorService(
     ClientSecretService clientSecretService,
     HashingService service
 ) {
-    private const string ApiUrl = "https://randomuser.me/api/?results=5";
+    private const string ApiUrl = "https://randomuser.me/api/?results=10";
 
     public async Task PopulateDatabaseAsync()
     {
-        var adminClient = (await clientService.CreateUserAsync(
-            "Andrei John", "Sumilang", "Paleracio"
-        )).Value!;
-    
-        var adminClientSecret = (await clientSecretService.CreateSecretAsync(
-            adminClient.Id, "slangdrei.07", "Sl@ngDrei07"
-        ));
     }
 
     public async Task PopulateDatabaseAsync1()
     {
-        var apiData = await FetchApiDataAsync();
-        if (apiData?.Results is not { Count: > 0 })
+        var location = new Reader.Models.Location()
         {
-            throw new InvalidOperationException("Failed to fetch client data from the API.");
-        }
-
-        var clients = new List<Client.Models.Client>();
-        var clientSecrets = new List<ClientSecret>();
-
-        var locations = new List<Gringotts.Api.Features.Reader.Models.Location>();
-        var readers = new List<Reader.Models.Reader>();
-
-        var departments = new List<Department>();
-        var users = new List<Gringotts.Api.Features.User.Models.User>();
-
-        var interactionLogs = new List<InteractionLog>();
-        var sessions = new List<Session>();
-
-        foreach (var result in apiData.Results)
+            Id = Guid.NewGuid(),
+            BuildingName = "Library",
+            RoomName = "Main",
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        dbContext.Locations.Add(location);
+        
+        var reader = new Reader.Models.Reader
         {
-            var client = new Client.Models.Client
-            {
-                Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
-                FirstName = result.Name.First,
-                LastName = result.Name.Last,
-                MiddleName = null // API does not provide middle names
-            };
+            Id = Guid.NewGuid(),
+            LocationId = location.Id,
+            Name = "Library Main",
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        dbContext.Readers.Add(reader);
+        
+        var department = new Department
+        {
+            Id = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow,
+            Name = "SHS"
+        };
+        
+        dbContext.Departments.Add(department);
 
-            var clientSecret = new ClientSecret
-            {
-                Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
-                ClientId = client.Id,
-                Username = result.Login.Username,
-                Password = service.Hash(result.Login.Password)
-            };
-
-            var location = new Gringotts.Api.Features.Reader.Models.Location
-            {
-                Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
-                BuildingName = result.Location.Country,
-                RoomName = result.Location.State,
-            };
-
-            var reader = new Reader.Models.Reader
-            {
-                Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
-                Name = result.Location.City,
-                LocationId = location.Id
-            };
-
-            var department = new Department
-            {
-                Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
-                Name = result.Location.Street.Name,
-            };
-
-
-            var user = new Gringotts.Api.Features.User.Models.User
-            {
-                Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
-                AccessExpiry = DateTime.UtcNow.AddDays(7),
-                CardId = result.Location.Postcode,
-                SchoolId = result.Location.Postcode,
-                FirstName = result.Name.First,
-                MiddleName = null,
-                LastName = result.Name.Last,
-                Affiliation = (byte)Random.Shared.Next(0, 4),
-                Sex = (byte)Random.Shared.Next(0, 2),
-                DepartmentId = department.Id
-            };
-
-            foreach (var i in Enumerable.Range(1, 10))
-            {
-                interactionLogs.AddRange(Enumerable.Range(20, 55)
-                .Select(_ => new InteractionLog
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
-                    LogReaderId = reader.Id,
-                    LogUserId = user.Id,
-                    CardId = user.CardId,
-                    DateTime = DateTime.UtcNow.Subtract(TimeSpan.FromDays(i)),
-                    InteractionType = (InteractionType)(byte)Random.Shared.Next(0, 4),
-                }));
-
-                var sessionLog = new Session
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
-                    LogReaderId = reader.Id,
-                    LogUserId = user.Id,
-                    StartDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(i)),
-                    EndDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(i)).AddHours(1)
-                };
-
-                sessions.Add(sessionLog);
-            }
-
-            clients.Add(client);
-            clientSecrets.Add(clientSecret);
-            locations.Add(location);
-            readers.Add(reader);
-            departments.Add(department);
-            users.Add(user);
-        }
-
-        await dbContext.Clients.AddRangeAsync(clients);
-        await dbContext.ClientSecrets.AddRangeAsync(clientSecrets);
-        await dbContext.Locations.AddRangeAsync(locations);
-        await dbContext.Readers.AddRangeAsync(readers);
-        await dbContext.Departments.AddRangeAsync(departments);
-        await dbContext.LogUsers.AddRangeAsync(users);
-        await dbContext.InteractionLogs.AddRangeAsync(interactionLogs);
-        await dbContext.Sessions.AddRangeAsync(sessions);
+        var user = new Gringotts.Api.Features.User.Models.User
+        {
+            Id = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow,
+            AccessExpiry = DateTime.UtcNow.AddDays(7),
+            CardId = "3871879588",
+            SchoolId = "123456",
+            FirstName = "Lindsay Angeline",
+            MiddleName = "L.",
+            LastName = "Abelar",
+            Affiliation = 1,
+            Sex = 1,
+            DepartmentId = department.Id
+        };
+        
+        dbContext.LogUsers.Add(user);
+        
+        
+        // var adminClient = (await clientService.CreateUserAsync(
+        //     "Admin Library", "Main"
+        // )).Value!;
+        //
+        // var adminClientSecret = (await clientSecretService.CreateSecretAsync(
+        //     adminClient.Id, "admin123", "admin12345"
+        // ));
+        // //
+        // var location = new Reader.Models.Location()
+        // {
+        //     Id = Guid.NewGuid(),
+        //     BuildingName = "Library",
+        //     RoomName = "Main",
+        //     CreatedAt = DateTime.UtcNow
+        // };
+        //
+        // dbContext.Locations.Add(location);
+        //
+        // var reader = new Reader.Models.Reader
+        // {
+        //     Id = Guid.NewGuid(),
+        //     LocationId = location.Id,
+        //     Name = "Library Main",
+        //     CreatedAt = DateTime.UtcNow
+        // };
+        //
+        // dbContext.Readers.Add(reader);
+        //
+        //
+        // var location2 = new Reader.Models.Location()
+        // {
+        //     Id = Guid.NewGuid(),
+        //     BuildingName = "Library",
+        //     RoomName = "E-Lib",
+        //     CreatedAt = DateTime.UtcNow
+        // };
+        //
+        // dbContext.Locations.Add(location2);
+        //
+        // var reader2 = new Reader.Models.Reader
+        // {
+        //     Id = Guid.NewGuid(),
+        //     LocationId = location.Id,
+        //     Name = "E-Library",
+        //     CreatedAt = DateTime.UtcNow
+        // };
+        //
+        // dbContext.Readers.Add(reader2);
+        //
+        // var department = new Department
+        // {
+        //     Id = Guid.NewGuid(),
+        //     CreatedAt = DateTime.UtcNow,
+        //     Name = "SHS"
+        // };
+        //
+        // dbContext.Departments.Add(department);
+        //
+        // var user = new Gringotts.Api.Features.User.Models.User
+        // {
+        //     Id = Guid.NewGuid(),
+        //     CreatedAt = DateTime.UtcNow,
+        //     AccessExpiry = DateTime.UtcNow.AddDays(7),
+        //     CardId = "3871941748",
+        //     SchoolId = "123456",
+        //     FirstName = "Lemuel John",
+        //     MiddleName = "L.",
+        //     LastName = "Rondulla",
+        //     Affiliation = 0,
+        //     Sex = 0,
+        //     DepartmentId = department.Id
+        // };
+        //
+        // dbContext.LogUsers.Add(user);
+        //
+        // var user2 = new Gringotts.Api.Features.User.Models.User
+        // {
+        //     Id = Guid.NewGuid(),
+        //     CreatedAt = DateTime.UtcNow,
+        //     AccessExpiry = DateTime.UtcNow.AddDays(7),
+        //     CardId = "3871883748",
+        //     SchoolId = "234567",
+        //     FirstName = "John Erick",
+        //     MiddleName = "M.",
+        //     LastName = "Reyes",
+        //     Affiliation = 0,
+        //     Sex = 0,
+        //     DepartmentId = department.Id
+        // };
+        //
+        // dbContext.LogUsers.Add(user2);
+        //
+        // var user3 = new Gringotts.Api.Features.User.Models.User
+        // {
+        //     Id = Guid.NewGuid(),
+        //     CreatedAt = DateTime.UtcNow,
+        //     AccessExpiry = DateTime.UtcNow.AddDays(7),
+        //     CardId = "3870052644",
+        //     SchoolId = "345678",
+        //     FirstName = "Peter Jairus",
+        //     MiddleName = "N.",
+        //     LastName = "Tolentino",
+        //     Affiliation = 0,
+        //     Sex = 0,
+        //     DepartmentId = department.Id
+        // };
+        //
+        // dbContext.LogUsers.Add(user3);
+        //
+        // var user4 = new Gringotts.Api.Features.User.Models.User
+        // {
+        //     Id = Guid.NewGuid(),
+        //     CreatedAt = DateTime.UtcNow,
+        //     AccessExpiry = DateTime.UtcNow.AddDays(7),
+        //     CardId = "3870612740",
+        //     SchoolId = "456789",
+        //     FirstName = "Andrei John",
+        //     MiddleName = "P.",
+        //     LastName = "Sumilang",
+        //     Affiliation = 0,
+        //     Sex = 0,
+        //     DepartmentId = department.Id
+        // };
+        //
+        // dbContext.LogUsers.Add(user4);
 
         await dbContext.SaveChangesAsync();
     }

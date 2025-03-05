@@ -83,14 +83,6 @@ public class ClientRegisterEndpoint : IEndpoint
         var response =
             new RegisterUserResponse(user.Id, secret.Username, user.FirstName, user.MiddleName, user.LastName);
         
-        var fileExtension = Path.GetExtension(request.UserProfileImage.FileName);
-        var filePath = Path.Combine("wwwroot/images", user.Id + fileExtension); 
-
-        await using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await request.UserProfileImage.CopyToAsync(stream, cancellationToken); 
-        }
-
         return Results.Created($"/users/{registeredUserResult.Value.Id}", response);
     }
 
@@ -128,8 +120,7 @@ public class ClientRegisterEndpoint : IEndpoint
         string FirstName,
         string? MiddleName,
         string LastName,
-        string Password,
-        IFormFile UserProfileImage
+        string Password
     );
 
     private record RegisterUserResponse(

@@ -136,6 +136,8 @@ public static class EndpointHelpers
         {
             query = query.Where(entityQuery);
         }
+        
+        var queryString = query.ToQueryString();
 
         // Get total count before pagination
         var totalCount = await query.CountAsync();
