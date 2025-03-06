@@ -56,6 +56,15 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
         return await ProcessExit(userActiveSession, cardId, date);
     }
 
+    public async Task<TypedOperationResult<InteractionLog>> ForceExit(Guid user, DateTime date)
+    {
+        var activeSession = await GetActiveSession(user);
+
+        if (activeSession == null) TypedOperationResult<InteractionLog>.Failure();
+
+        return await ProcessExit(activeSession, "[SYSTEM OVERRIDE]", date);
+    }
+    
     private async Task<TypedOperationResult<InteractionLog>> HandleSessionTransition(
         ActiveSession activeSession, Guid newReaderId, Guid userId, string cardId, DateTime date)
     {
