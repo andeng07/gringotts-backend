@@ -96,7 +96,7 @@ app.MapEndpoints(app.MapGroup("api"));
 
 app.UseStaticFiles();
 
-app.Run();
+app.Run("http://" + GetLocalIPAddress() + ":7107");
 string GetLocalIPAddress()
 {
     var host = Dns.GetHostEntry(Dns.GetHostName());
