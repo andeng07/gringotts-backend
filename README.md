@@ -42,7 +42,7 @@ Ensure the following dependencies are installed:
 
 ```sh
 git clone https://github.com/andeng07/gringotts-backend
-cd rfid-log-management
+cd gringotts-backend
 ```
 
 #### 🛠 Configure Environment Settings
