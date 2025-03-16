@@ -82,7 +82,7 @@ dotnet run
 ## 📂 Project Structure
 
 ```sh
-rfid-log-management/
+gringotts-backend/
 ├── Features/
 │   ├── Client/
 │   ├── ClientAuthentication/
