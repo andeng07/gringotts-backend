@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Gringotts.Api.Features.Interactions.Models;
 using Gringotts.Api.Shared.Utilities;
+using NPOI.SS.Formula.Functions;
 
 namespace Gringotts.Api.Features.Interactions.DataFilters;
 

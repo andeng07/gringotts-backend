@@ -37,7 +37,7 @@ public class GetLogUsersEndpoint : IEndpoint
                     );
                 }
             )
-            //.WithAuthenticationFilter()
+            .WithAuthenticationFilter()
             .Produces<PaginatedResult<GetLogUserEndpoint.GetLogUserResponse>>();
     }
 

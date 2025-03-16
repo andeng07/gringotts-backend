@@ -27,22 +27,28 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
         var user = getUserResult.Value!;
         var userActiveSession = await GetActiveSession(user.Id);
         
-        // TODO: Logical bug: Cannot Exit when Access expires while being in an Active Session
-        var isAccessExpired = DateTime.UtcNow <= user.AccessExpiry;
-        if (isAccessExpired)
-        {
-            return await AddInteractionLog(reader.Id, user.Id, cardId, date, InteractionType.Unauthorized);
-        }
+        var isAccessExpired = DateTime.UtcNow >= user.AccessExpiry;
         
         // No active session, process entry
         if (userActiveSession == null)
         {
+            if (isAccessExpired)
+            {
+                return await AddInteractionLog(reader.Id, user.Id, cardId, date, InteractionType.Unauthorized);
+            }
+            
             return await ProcessEntry(reader.Id, user.Id, cardId, date);
         }
 
         // Different reader, process exit and new entry
         if (userActiveSession.LogReaderId != logReaderId)
         {
+            if (isAccessExpired)
+            { 
+                await ProcessExit(userActiveSession, cardId, date);
+                return await AddInteractionLog(reader.Id, user.Id, cardId, date, InteractionType.Unauthorized);
+            }
+            
             return await HandleSessionTransition(userActiveSession, logReaderId, user.Id, cardId, date);
         }
 
@@ -50,6 +56,15 @@ public class SessionService(AppDbContext dbContext, ReaderService readerService,
         return await ProcessExit(userActiveSession, cardId, date);
     }
 
+    public async Task<TypedOperationResult<InteractionLog>> ForceExit(Guid user, DateTime date)
+    {
+        var activeSession = await GetActiveSession(user);
+
+        if (activeSession == null) TypedOperationResult<InteractionLog>.Failure();
+
+        return await ProcessExit(activeSession, "[SYSTEM OVERRIDE]", date);
+    }
+    
     private async Task<TypedOperationResult<InteractionLog>> HandleSessionTransition(
         ActiveSession activeSession, Guid newReaderId, Guid userId, string cardId, DateTime date)
     {

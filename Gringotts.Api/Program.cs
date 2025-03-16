@@ -31,7 +31,7 @@ builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<SessionService>();
 
-builder.Services.AddScoped<ClientPopulatorService>();
+builder.Services.AddScoped<PopulatorService>();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -70,7 +70,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.AllowAnyOrigin() // Allows all origins
-                .AllowAnyMethod()  // Allows all HTTP methods
+                .AllowAnyMethod() // Allows all HTTP methods
                 .AllowAnyHeader(); // Allows all headers
         });
 });
@@ -83,8 +83,8 @@ app.UseCors("AllowAllOrigins");
 
 // using (var scope = app.Services.CreateScope())
 // {
-//     var populatorService = scope.ServiceProvider.GetRequiredService<ClientPopulatorService>();
-//     await populatorService.PopulateDatabaseAsync(); // Populate with 10 clients
+//     var populatorService = scope.ServiceProvider.GetRequiredService<PopulatorService>();
+//     await populatorService.PopulateDatabaseAsync(); 
 // }
 
 // TODO: setup admin account
@@ -96,8 +96,7 @@ app.MapEndpoints(app.MapGroup("api"));
 
 app.UseStaticFiles();
 
-app.Run($"http://{GetLocalIPAddress()}:7106");
-
+app.Run("http://" + GetLocalIPAddress() + ":7107");
 string GetLocalIPAddress()
 {
     var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -109,5 +108,6 @@ string GetLocalIPAddress()
             return ip.ToString();
         }
     }
+
     throw new Exception("Local IP address not found.");
 }
